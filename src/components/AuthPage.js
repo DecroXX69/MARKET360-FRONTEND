@@ -32,9 +32,10 @@ const AuthPage = () => {
         console.log('Signup data being sent:', {
           email: formData.email,
           password: formData.password,
-          username: formData.username
+          username: formData.username,
+          confirmPassword: formData.confirmPassword
         });
-        const response = await signUp(formData.email, formData.password, formData.username);
+        const response = await signUp(formData.email, formData.password, formData.username, formData.confirmPassword);
         console.log('Signup response:', response);
         localStorage.setItem('token', response.token);
         navigate('/products');

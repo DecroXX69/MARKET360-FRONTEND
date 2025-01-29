@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import AuthPage from './components/AuthPage';
 import ProductPage from './components/ProductPage';
+import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';
 
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -18,10 +20,14 @@ const App = () => {
     return () => window.removeEventListener('storage', checkAuth);
   }, []);
 
-  // Handler for Post a Deal button
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      setCurrentUser({ _id: 'user123', name: 'Test User' });
+    }
+  }, [isAuthenticated]);
+
   const handlePostDeal = () => {
     if (!isAuthenticated) {
-      // Use navigate instead of window.location
       window.location.href = '/auth';
       return;
     }
@@ -35,37 +41,27 @@ const App = () => {
 
   return (
     <Router>
-      <div>
-        <Navbar 
-          handlePostDeal={handlePostDeal} // Changed from onPostDeal to handlePostDeal
-          isAuthenticated={isAuthenticated}
-          handleLogout={handleLogout} // Changed from onLogout to handleLogout
-        />
-        <div className="app-container">
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <ProductPage 
-                  showModal={showProductModal} 
+      <Navbar 
+        handlePostDeal={handlePostDeal}
+        isAuthenticated={isAuthenticated}
+        handleLogout={handleLogout}
+        currentUser={currentUser}
+      />
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={<ProductPage 
+          showModal={showProductModal} 
+          setShowModal={setShowProductModal}
+          isAuthenticated={isAuthenticated}/>} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/products" element={<ProductPage showModal={showProductModal} 
                   setShowModal={setShowProductModal}
-                  isAuthenticated={isAuthenticated}
-                />
-              } 
-            />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route 
-              path="/products" 
-              element={
-                <ProductPage 
-                  showModal={showProductModal} 
-                  setShowModal={setShowProductModal}
-                  isAuthenticated={isAuthenticated}
-                />
-              } 
-            />
-          </Routes>
-        </div>
+                  isAuthenticated={isAuthenticated}/>} />
+          <Route
+            path="/products/:id"
+            element={<ProductDescription currentUser={currentUser} />}
+          />
+        </Routes>
       </div>
     </Router>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getProducts, createProduct, updateProductRating } from '../services/api';
 import styles from './ProductPage.module.css';
-
+import { Link } from 'react-router-dom';
 const ProductPage = ({ showModal, setShowModal }) => {
   const [products, setProducts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -213,24 +213,35 @@ const ProductPage = ({ showModal, setShowModal }) => {
               </div>
               <p className={styles.store}>From: {product.store}</p>
               <div className={styles.actions}>
-                <a href={product.dealUrl} target="_blank" rel="noopener noreferrer" className={styles.dealLink}>
-                  View Deal
-                </a>
-                <div className={styles.ratingButtons}>
-                  <button 
-                    onClick={() => handleLike(product._id)} 
-                    className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
-                  >
-                    👍 {product.likes?.length || 0}
-                  </button>
-                  <button 
-                    onClick={() => handleDislike(product._id)}
-                    className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
-                  >
-                    👎 {product.dislikes?.length || 0}
-                  </button>
-                </div>
-              </div>
+  <Link
+    to={`/products/${product._id}`}
+    className={styles.viewDetailsButton}
+  >
+    View Details
+  </Link>
+  <a
+    href={product.dealUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    className={styles.dealLink}
+  >
+    View Deal
+  </a>
+  <div className={styles.ratingButtons}>
+    <button 
+      onClick={() => handleLike(product._id)} 
+      className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
+    >
+      👍 {product.likes?.length || 0}
+    </button>
+    <button 
+      onClick={() => handleDislike(product._id)}
+      className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
+    >
+      👎 {product.dislikes?.length || 0}
+    </button>
+  </div>
+</div>
             </div>
           </div>
         ))}

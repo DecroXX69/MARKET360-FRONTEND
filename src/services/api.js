@@ -20,6 +20,11 @@ export const signIn = async(email, password) => {
     return response.data;
 };
 
+export const getProductById = async (id) => {
+    const response = await api.get(`/products/${id}`);
+    return response.data;
+};
+
 export const signUp = async(email, password, username, confirmPassword) => {
     const response = await api.post('/auth/signup', { email, password, username, confirmPassword });
     return response.data;
@@ -43,6 +48,7 @@ export const getProducts = async() => {
         throw error;
     }
 };
+
 
 export const createProduct = async(productData) => {
     const response = await api.post('/products', productData);

@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { getProducts, createProduct, updateProductRating } from '../services/api';
 import styles from './ProductPage.module.css';
 
-const ProductPage = () => {
+const ProductPage = ({ showModal, setShowModal }) => {
   const [products, setProducts] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // Add current user state
+  const [currentUser, setCurrentUser] = useState(null);
   const [newProduct, setNewProduct] = useState({
     dealUrl: '',
     title: '',
@@ -50,12 +49,10 @@ const ProductPage = () => {
           const userLikedIndex = product.likes.indexOf(currentUser._id);
           const userDislikedIndex = product.dislikes.indexOf(currentUser._id);
           
-          // Remove from dislikes if present
           if (userDislikedIndex !== -1) {
             product.dislikes = product.dislikes.filter(id => id !== currentUser._id);
           }
 
-          // Toggle like
           if (userLikedIndex === -1) {
             product.likes = [...product.likes, currentUser._id];
           } else {
@@ -84,12 +81,10 @@ const ProductPage = () => {
           const userLikedIndex = product.likes.indexOf(currentUser._id);
           const userDislikedIndex = product.dislikes.indexOf(currentUser._id);
           
-          // Remove from likes if present
           if (userLikedIndex !== -1) {
             product.likes = product.likes.filter(id => id !== currentUser._id);
           }
 
-          // Toggle dislike
           if (userDislikedIndex === -1) {
             product.dislikes = [...product.dislikes, currentUser._id];
           } else {
@@ -126,15 +121,8 @@ const ProductPage = () => {
     }
   };
 
-  // Rest of your component remains the same...
   return (
     <div className={styles.container}>
-      <button 
-        className={styles.listButton}
-        onClick={() => setShowModal(true)}
-      >
-        List a Product
-      </button>
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>

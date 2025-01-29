@@ -1,40 +1,74 @@
-// frontend/src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import AuthPage from './components/AuthPage';
 import ProductPage from './components/ProductPage';
 import './index.css';
 import Navbar from './components/Navbar';
 
 const App = () => {
-    const isAuthenticated = !!localStorage.getItem('token');
-    console.log('Is authenticated:', isAuthenticated);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
 
-    return ( <
-        Router >
-        <div className = "app-container" > {
-            /* <Routes>
-                      <Route 
-                        path="/" 
-                        element={isAuthenticated ? <Navigate to="/products" /> : <Navigate to="/auth" />} 
-                      />
-                      <Route 
-                        path="/auth" 
-                        element={!isAuthenticated ? <AuthPage /> : <Navigate to="/products" />} 
-                      />
-                      <Route 
-                        path="/products" 
-                        element={isAuthenticated ? <ProductPage /> : <Navigate to="/auth" />} 
-                      />
-                    </Routes> */
+  useEffect(() => {
+    const checkAuth = () => {
+      setIsAuthenticated(!!localStorage.getItem('token'));
+    };
 
-                    /*<ProductPage/>*/
-        } 
-        
-        
-        <Navbar/>
-        </div> </Router >
-    );
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
+
+  // Handler for Post a Deal button
+  const handlePostDeal = () => {
+    if (!isAuthenticated) {
+      // Use navigate instead of window.location
+      window.location.href = '/auth';
+      return;
+    }
+    setShowProductModal(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
+
+  return (
+    <Router>
+      <div>
+        <Navbar 
+          handlePostDeal={handlePostDeal} // Changed from onPostDeal to handlePostDeal
+          isAuthenticated={isAuthenticated}
+          handleLogout={handleLogout} // Changed from onLogout to handleLogout
+        />
+        <div className="app-container">
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <ProductPage 
+                  showModal={showProductModal} 
+                  setShowModal={setShowProductModal}
+                  isAuthenticated={isAuthenticated}
+                />
+              } 
+            />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route 
+              path="/products" 
+              element={
+                <ProductPage 
+                  showModal={showProductModal} 
+                  setShowModal={setShowProductModal}
+                  isAuthenticated={isAuthenticated}
+                />
+              } 
+            />
+          </Routes>
+        </div>
+      </div>
+    </Router>
+  );
 };
 
 export default App;

@@ -7,7 +7,7 @@ import {  FaUser } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { HiTrendingUp } from 'react-icons/hi';
 
-const Navbar = () => {
+const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout }) => {
   return (
     <div className={styles.navbarWrapper}>
       <div className={styles.topBanner}>
@@ -55,15 +55,30 @@ const Navbar = () => {
               <BsBellFill className={styles.icon} style={{color: '#ff1a75'}} />
               <span>Deal Alerts</span>
             </Link>
-            <Link to="/post-deal" className={styles.actionButton}>
+            {/* Fixed the onClick handler */}
+            <button 
+              onClick={handlePostDeal} 
+              className={styles.actionButton}
+              type="button"
+            >
               <IoAddCircle className={styles.icon} style={{color: '#2196f3'}} />
               <span>Post a Deal</span>
-            </Link>
-            
-            <Link to="/signup" className={styles.actionButton}>
-              <FaUser className={styles.icon} style={{color: '#ff7043'}} />
-              <span>Sign Up</span>
-            </Link>
+            </button>
+            {isAuthenticated ? (
+              <button 
+                onClick={handleLogout} 
+                className={styles.actionButton}
+                type="button"
+              >
+                <FaUser className={styles.icon} style={{color: '#ff7043'}} />
+                <span>Logout</span>
+              </button>
+            ) : (
+              <Link to="/auth" className={styles.actionButton}>
+                <FaUser className={styles.icon} style={{color: '#ff7043'}} />
+                <span>Sign Up</span>
+              </Link>
+            )}
           </div>
         </div>
       </nav>

@@ -59,21 +59,17 @@ export const toggleDislike = async(productId) => {
     return response.data;
 };
 
-// in services/api.js
-export const updateProductRating = async(productId, { action, userId }) => {
-    const response = await fetch(`/api/products/${productId}/rating`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action, userId }),
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to update rating');
+export const updateProductRating = async (productId, { action, userId }) => {
+    try {
+        const response = await api.post(`/products/${productId}/rating`, {
+            action,
+            userId
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error in updateProductRating:', error);
+        throw error;
     }
-
-    return response.json();
 };
 
 export default api;

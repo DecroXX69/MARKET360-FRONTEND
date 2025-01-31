@@ -39,35 +39,40 @@ const ProductPage = ({ showModal, setShowModal }) => {
 
   const handleLike = async (productId) => {
     try {
-      if (!currentUser) {
-        alert('Please login to like products');
-        return;
-      }
-
-      const updatedProducts = products.map(product => {
-        if (product._id === productId) {
-          const userLikedIndex = product.likes.indexOf(currentUser._id);
-          const userDislikedIndex = product.dislikes.indexOf(currentUser._id);
-          
-          if (userDislikedIndex !== -1) {
-            product.dislikes = product.dislikes.filter(id => id !== currentUser._id);
-          }
-
-          if (userLikedIndex === -1) {
-            product.likes = [...product.likes, currentUser._id];
-          } else {
-            product.likes = product.likes.filter(id => id !== currentUser._id);
-          }
+        if (!currentUser) {
+            alert('Please login to like products');
+            return;
         }
-        return product;
-      });
 
-      setProducts(updatedProducts);
-      await updateProductRating(productId, { action: 'like', userId: currentUser._id });
+        console.log('Sending like request for product:', productId);
+        
+        const response = await updateProductRating(productId, {
+            action: 'like',
+            userId: currentUser._id
+        });
+
+        console.log('Received response:', response);
+
+        setProducts(products.map(product => {
+            if (product._id === productId) {
+                return {
+                    ...product,
+                    likes: response.userLiked ? 
+                        (product.likes || []).concat(currentUser._id) : 
+                        (product.likes || []).filter(id => id !== currentUser._id),
+                    dislikes: response.userDisliked ? 
+                        (product.dislikes || []).concat(currentUser._id) : 
+                        (product.dislikes || []).filter(id => id !== currentUser._id)
+                };
+            }
+            return product;
+        }));
     } catch (error) {
-      console.error('Error updating like:', error);
+        console.error('Error updating like:', error);
+        alert('Failed to update like status. Please try again.');
     }
-  };
+};
+
 
   const handleDislike = async (productId) => {
     try {
@@ -76,26 +81,23 @@ const ProductPage = ({ showModal, setShowModal }) => {
         return;
       }
 
-      const updatedProducts = products.map(product => {
-        if (product._id === productId) {
-          const userLikedIndex = product.likes.indexOf(currentUser._id);
-          const userDislikedIndex = product.dislikes.indexOf(currentUser._id);
-          
-          if (userLikedIndex !== -1) {
-            product.likes = product.likes.filter(id => id !== currentUser._id);
-          }
-
-          if (userDislikedIndex === -1) {
-            product.dislikes = [...product.dislikes, currentUser._id];
-          } else {
-            product.dislikes = product.dislikes.filter(id => id !== currentUser._id);
-          }
-        }
-        return product;
+      const response = await updateProductRating(productId, {
+        action: 'dislike',
+        userId: currentUser._id
       });
 
-      setProducts(updatedProducts);
-      await updateProductRating(productId, { action: 'dislike', userId: currentUser._id });
+      setProducts(products.map(product => {
+        if (product._id === productId) {
+          return {
+            ...product,
+            likes: response.userLiked ? [...product.likes, currentUser._id] :
+              product.likes.filter(id => id !== currentUser._id),
+            dislikes: response.userDisliked ? [...product.dislikes, currentUser._id] :
+              product.dislikes.filter(id => id !== currentUser._id)
+          };
+        }
+        return product;
+      }));
     } catch (error) {
       console.error('Error updating dislike:', error);
     }

@@ -1,13 +1,90 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
-import { BsBellFill } from 'react-icons/bs'; // Changed to filled version
-import { IoAddCircle } from 'react-icons/io5'; // Changed to filled version
-import {  FaUser } from 'react-icons/fa';
+import { BsBellFill } from 'react-icons/bs';
+import { IoAddCircle } from 'react-icons/io5';
+import { FaUser } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { HiTrendingUp } from 'react-icons/hi';
+import { getProducts } from '../services/api';
+import market from '../assets/market360.jpeg';
+const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout, currentUser }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchHistory, setSearchHistory] = useState(() => {
+    // Initialize search history from localStorage
+    const savedHistory = localStorage.getItem('searchHistory');
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  });
+  const navigate = useNavigate();
 
-const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout }) => {
+  // Handle search input with debounce
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm.trim()) {
+        handleSearch(searchTerm);
+      }
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const handleSearch = async (value) => {
+    try {
+      const products = await getProducts({ search: value });
+      // Filter products based on search term
+      const filteredProducts = products.filter(product => 
+        product.title.toLowerCase().includes(value.toLowerCase()) ||
+        product.description?.toLowerCase().includes(value.toLowerCase())
+      );
+      setSearchResults(filteredProducts);
+      setShowSearchResults(true);
+    } catch (error) {
+      console.error('Search error:', error);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setShowSearchResults(true);
+  };
+
+  const handleSearchSubmit = () => {
+    if (searchTerm.trim()) {
+      // Add to search history
+      const updatedHistory = [
+        searchTerm,
+        ...searchHistory.filter(item => item !== searchTerm)
+      ].slice(0, 5); // Keep only last 5 searches
+      
+      setSearchHistory(updatedHistory);
+      localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+      
+      // Navigate to search results page or handle search
+      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+      setShowSearchResults(false);
+    }
+  };
+
+  const handleSearchItemClick = (item) => {
+    setSearchTerm(item);
+    handleSearch(item);
+  };
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(`.${styles.searchSection}`)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <div className={styles.navbarWrapper}>
       <div className={styles.topBanner}>
@@ -17,7 +94,7 @@ const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout }) => {
       <nav className={styles.mainNav}>
         <div className={styles.container}>
           <Link to="/" className={styles.logo}>
-            <img src="/your-logo.png" alt="Market360" />
+            <img src={market} alt="Market360" />
           </Link>
 
           <div className={styles.searchSection}>
@@ -26,27 +103,65 @@ const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout }) => {
                 type="text"
                 placeholder="Search deals, coupons, stores and more..."
                 className={styles.searchInput}
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearchSubmit()}
               />
-              <button className={styles.searchButton}>
+              <button 
+                className={styles.searchButton}
+                onClick={handleSearchSubmit}
+              >
                 <svg className={styles.searchIcon} viewBox="0 0 24 24">
                   <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                 </svg>
               </button>
+              
+              {/* Search Results and History Dropdown */}
+              {showSearchResults && (searchResults.length > 0 || searchHistory.length > 0) && (
+                <div className={styles.searchResults}>
+                  {searchTerm && searchResults.length > 0 ? (
+                    // Show filtered results when searching
+                    <>
+                      <div className={styles.searchResultsHeader}>Search Results</div>
+                      {searchResults.map((product) => (
+                        <Link
+                          key={product._id}
+                          to={`/products/${product._id}`}
+                          className={styles.searchResultItem}
+                          onClick={() => setShowSearchResults(false)}
+                        >
+                          <div className={styles.searchResultContent}>
+                            <span className={styles.productTitle}>{product.title}</span>
+                            <span className={styles.productPrice}>${product.salePrice}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </>
+                  ) : (
+                    // Show search history when input is empty
+                    searchHistory.length > 0 && (
+                      <>
+                        <div className={styles.searchResultsHeader}>Recent Searches</div>
+                        {searchHistory.map((item, index) => (
+                          <div
+                            key={index}
+                            className={styles.searchHistoryItem}
+                            onClick={() => handleSearchItemClick(item)}
+                          >
+                            <span className={styles.historyIcon}>🕒</span>
+                            {item}
+                          </div>
+                        ))}
+                      </>
+                    )
+                  )}
+                </div>
+              )}
             </div>
 
+            {/* Rest of navbar content... */}
             <div className={styles.mainNavLinks}>
-              <div className={styles.navItem}>
-                Categories <IoIosArrowDown />
-              </div>
-              <div className={styles.navItem}>
-                Coupons <IoIosArrowDown />
-              </div>
-              <div className={styles.navItem}>
-                Community Forums <IoIosArrowDown />
-              </div>
-              <div className={styles.navItem}>
-                Personal Finance <IoIosArrowDown />
-              </div>
+              {/* ... existing nav links ... */}
             </div>
           </div>
 
@@ -55,24 +170,30 @@ const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout }) => {
               <BsBellFill className={styles.icon} style={{color: '#ff1a75'}} />
               <span>Deal Alerts</span>
             </Link>
-            {/* Fixed the onClick handler */}
+            
             <button 
-              onClick={handlePostDeal} 
+              onClick={handlePostDeal}
               className={styles.actionButton}
               type="button"
             >
               <IoAddCircle className={styles.icon} style={{color: '#2196f3'}} />
               <span>Post a Deal</span>
             </button>
+
             {isAuthenticated ? (
-              <button 
-                onClick={handleLogout} 
-                className={styles.actionButton}
-                type="button"
-              >
-                <FaUser className={styles.icon} style={{color: '#ff7043'}} />
-                <span>Logout</span>
-              </button>
+              <div className={styles.userSection}>
+                <span className={styles.userName}>
+                  Hello, {currentUser?.username || currentUser?.name}
+                </span>
+                <button 
+                  onClick={handleLogout} 
+                  className={styles.actionButton}
+                  type="button"
+                >
+                  <FaUser className={styles.icon} style={{color: '#ff7043'}} />
+                  <span>Logout</span>
+                </button>
+              </div>
             ) : (
               <Link to="/auth" className={styles.actionButton}>
                 <FaUser className={styles.icon} style={{color: '#ff7043'}} />

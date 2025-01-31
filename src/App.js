@@ -22,9 +22,10 @@ const App = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      setCurrentUser({ _id: 'user123', name: 'Test User' });
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        setCurrentUser(userData);
     }
-  }, [isAuthenticated]);
+}, [isAuthenticated]);
 
   const handlePostDeal = () => {
     if (!isAuthenticated) {
@@ -36,8 +37,10 @@ const App = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user'); // Add this line
+    setCurrentUser(null);
     setIsAuthenticated(false);
-  };
+};
 
   return (
     <Router>

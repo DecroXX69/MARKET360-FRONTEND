@@ -20,6 +20,11 @@ export const signIn = async(email, password) => {
     return response.data;
 };
 
+export const getProductById = async (id) => {
+    const response = await api.get(`/products/${id}`);
+    return response.data;
+};
+
 export const signUp = async(email, password, username, confirmPassword) => {
     const response = await api.post('/auth/signup', { email, password, username, confirmPassword });
     return response.data;
@@ -44,6 +49,7 @@ export const getProducts = async() => {
     }
 };
 
+
 export const createProduct = async(productData) => {
     const response = await api.post('/products', productData);
     return response.data;
@@ -59,21 +65,17 @@ export const toggleDislike = async(productId) => {
     return response.data;
 };
 
-// in services/api.js
-export const updateProductRating = async(productId, { action, userId }) => {
-    const response = await fetch(`/api/products/${productId}/rating`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action, userId }),
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to update rating');
+export const updateProductRating = async (productId, { action, userId }) => {
+    try {
+        const response = await api.post(`/products/${productId}/rating`, {
+            action,
+            userId
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error in updateProductRating:', error);
+        throw error;
     }
-
-    return response.json();
 };
 
 export default api;

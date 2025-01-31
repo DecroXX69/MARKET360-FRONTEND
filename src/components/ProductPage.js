@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getProducts, createProduct, updateProductRating } from '../services/api';
 import styles from './ProductPage.module.css';
-
-const ProductPage = () => {
+import { Link } from 'react-router-dom';
+const ProductPage = ({ showModal, setShowModal }) => {
   const [products, setProducts] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // Add current user state
+  const [currentUser, setCurrentUser] = useState(null);
   const [newProduct, setNewProduct] = useState({
     dealUrl: '',
     title: '',
@@ -40,37 +39,40 @@ const ProductPage = () => {
 
   const handleLike = async (productId) => {
     try {
-      if (!currentUser) {
-        alert('Please login to like products');
-        return;
-      }
-
-      const updatedProducts = products.map(product => {
-        if (product._id === productId) {
-          const userLikedIndex = product.likes.indexOf(currentUser._id);
-          const userDislikedIndex = product.dislikes.indexOf(currentUser._id);
-          
-          // Remove from dislikes if present
-          if (userDislikedIndex !== -1) {
-            product.dislikes = product.dislikes.filter(id => id !== currentUser._id);
-          }
-
-          // Toggle like
-          if (userLikedIndex === -1) {
-            product.likes = [...product.likes, currentUser._id];
-          } else {
-            product.likes = product.likes.filter(id => id !== currentUser._id);
-          }
+        if (!currentUser) {
+            alert('Please login to like products');
+            return;
         }
-        return product;
-      });
 
-      setProducts(updatedProducts);
-      await updateProductRating(productId, { action: 'like', userId: currentUser._id });
+        console.log('Sending like request for product:', productId);
+        
+        const response = await updateProductRating(productId, {
+            action: 'like',
+            userId: currentUser._id
+        });
+
+        console.log('Received response:', response);
+
+        setProducts(products.map(product => {
+            if (product._id === productId) {
+                return {
+                    ...product,
+                    likes: response.userLiked ? 
+                        (product.likes || []).concat(currentUser._id) : 
+                        (product.likes || []).filter(id => id !== currentUser._id),
+                    dislikes: response.userDisliked ? 
+                        (product.dislikes || []).concat(currentUser._id) : 
+                        (product.dislikes || []).filter(id => id !== currentUser._id)
+                };
+            }
+            return product;
+        }));
     } catch (error) {
-      console.error('Error updating like:', error);
+        console.error('Error updating like:', error);
+        alert('Failed to update like status. Please try again.');
     }
-  };
+};
+
 
   const handleDislike = async (productId) => {
     try {
@@ -79,28 +81,23 @@ const ProductPage = () => {
         return;
       }
 
-      const updatedProducts = products.map(product => {
-        if (product._id === productId) {
-          const userLikedIndex = product.likes.indexOf(currentUser._id);
-          const userDislikedIndex = product.dislikes.indexOf(currentUser._id);
-          
-          // Remove from likes if present
-          if (userLikedIndex !== -1) {
-            product.likes = product.likes.filter(id => id !== currentUser._id);
-          }
-
-          // Toggle dislike
-          if (userDislikedIndex === -1) {
-            product.dislikes = [...product.dislikes, currentUser._id];
-          } else {
-            product.dislikes = product.dislikes.filter(id => id !== currentUser._id);
-          }
-        }
-        return product;
+      const response = await updateProductRating(productId, {
+        action: 'dislike',
+        userId: currentUser._id
       });
 
-      setProducts(updatedProducts);
-      await updateProductRating(productId, { action: 'dislike', userId: currentUser._id });
+      setProducts(products.map(product => {
+        if (product._id === productId) {
+          return {
+            ...product,
+            likes: response.userLiked ? [...product.likes, currentUser._id] :
+              product.likes.filter(id => id !== currentUser._id),
+            dislikes: response.userDisliked ? [...product.dislikes, currentUser._id] :
+              product.dislikes.filter(id => id !== currentUser._id)
+          };
+        }
+        return product;
+      }));
     } catch (error) {
       console.error('Error updating dislike:', error);
     }
@@ -126,15 +123,8 @@ const ProductPage = () => {
     }
   };
 
-  // Rest of your component remains the same...
   return (
     <div className={styles.container}>
-      <button 
-        className={styles.listButton}
-        onClick={() => setShowModal(true)}
-      >
-        List a Product
-      </button>
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -225,24 +215,35 @@ const ProductPage = () => {
               </div>
               <p className={styles.store}>From: {product.store}</p>
               <div className={styles.actions}>
-                <a href={product.dealUrl} target="_blank" rel="noopener noreferrer" className={styles.dealLink}>
-                  View Deal
-                </a>
-                <div className={styles.ratingButtons}>
-                  <button 
-                    onClick={() => handleLike(product._id)} 
-                    className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
-                  >
-                    👍 {product.likes?.length || 0}
-                  </button>
-                  <button 
-                    onClick={() => handleDislike(product._id)}
-                    className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
-                  >
-                    👎 {product.dislikes?.length || 0}
-                  </button>
-                </div>
-              </div>
+  <Link
+    to={`/products/${product._id}`}
+    className={styles.viewDetailsButton}
+  >
+    View Details
+  </Link>
+  <a
+    href={product.dealUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    className={styles.dealLink}
+  >
+    View Deal
+  </a>
+  <div className={styles.ratingButtons}>
+    <button 
+      onClick={() => handleLike(product._id)} 
+      className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
+    >
+      👍 {product.likes?.length || 0}
+    </button>
+    <button 
+      onClick={() => handleDislike(product._id)}
+      className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
+    >
+      👎 {product.dislikes?.length || 0}
+    </button>
+  </div>
+</div>
             </div>
           </div>
         ))}

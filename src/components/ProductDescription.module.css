@@ -1,0 +1,166 @@
+.productContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.backButton {
+  background: #2c3e50;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backButton:hover {
+  transform: translateY(-2px);
+}
+
+.loading {
+  font-size: 1.5rem;
+  color: #666;
+  text-align: center;
+}
+
+.mainContent {
+  display: flex;
+  gap: 2rem;
+}
+
+.imageSection {
+  flex: 1;
+  text-align: center;
+}
+
+.productImage {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.detailsSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.priceInfo {
+  background: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.priceBlock {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.salePrice {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2ecc71;
+}
+
+.discount {
+  background: #e74c3c;
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: #95a5a6;
+  font-weight: 600;
+}
+
+.storeInfo {
+  font-size: 1.1rem;
+  color: #2c3e50;
+  margin-top: 0.5rem;
+}
+
+.buyButton {
+  display: inline-block;
+  background: linear-gradient(45deg, #2196F3, #3F51B5);
+  color: white;
+  padding: 1rem 2rem;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.buyButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.ratingButton {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.likeButton {
+  background: #2ecc71;
+  color: white;
+}
+
+.active.likeButton {
+  background: #27ae60;
+}
+
+.dislikeButton {
+  background: #f44336;
+  color: white;
+}
+
+.active.dislikeButton {
+  background: #d32f2f;
+}
+
+.descriptionSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.descriptionTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.descriptionText {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #4a4a4a;
+}
+
+.noDescription {
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+}

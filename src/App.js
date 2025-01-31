@@ -1,41 +1,70 @@
-// frontend/src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import AuthPage from './components/AuthPage';
 import ProductPage from './components/ProductPage';
+import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';
 import ProfilePage from './components/ProfilePage';
 const App = () => {
-    const isAuthenticated = !!localStorage.getItem('token');
-    console.log('Is authenticated:', isAuthenticated);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [currentUser, setCurrentUser] = useState(null);
 
-    return ( <
-        Router >
-        <div className = "app-container" > 
-        
-       {/*
-        
-             <Routes>
-                      <Route 
-                        path="/" 
-                        element={isAuthenticated ? <Navigate to="/products" /> : <Navigate to="/auth" />} 
-                      />
-                      <Route 
-                        path="/auth" 
-                        element={!isAuthenticated ? <AuthPage /> : <Navigate to="/products" />} 
-                      />
-                      <Route 
-                        path="/products" 
-                        element={isAuthenticated ? <ProductPage /> : <Navigate to="/auth" />} 
-                      />
-                    </Routes> 
-                    <ProductPage/>
-                    */}
-                    <Navbar/>       
-        <ProfilePage/>
-        </div> </Router >
-    );
+  useEffect(() => {
+    const checkAuth = () => {
+      setIsAuthenticated(!!localStorage.getItem('token'));
+    };
+
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      setCurrentUser({ _id: 'user123', name: 'Test User' });
+    }
+  }, [isAuthenticated]);
+
+  const handlePostDeal = () => {
+    if (!isAuthenticated) {
+      window.location.href = '/auth';
+      return;
+    }
+    setShowProductModal(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
+
+  return (
+    <Router>
+      <Navbar 
+        handlePostDeal={handlePostDeal}
+        isAuthenticated={isAuthenticated}
+        handleLogout={handleLogout}
+        currentUser={currentUser}
+      />
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={<ProductPage 
+          showModal={showProductModal} 
+          setShowModal={setShowProductModal}
+          isAuthenticated={isAuthenticated}/>} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/products" element={<ProductPage showModal={showProductModal} 
+                  setShowModal={setShowProductModal}
+                  isAuthenticated={isAuthenticated}/>} />
+          <Route
+            path="/products/:id"
+            element={<ProductDescription currentUser={currentUser} />}
+          />
+        </Routes>
+      </div>
+    </Router>
+  );
 };
 
 export default App;

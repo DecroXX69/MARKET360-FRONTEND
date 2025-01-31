@@ -1,235 +1,324 @@
-/* ProductPage.module.css */
+/* Base Container Styles */
 .container {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .listButton {
-    background-color: #007bff;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-bottom: 2rem;
-    transition: background-color 0.2s;
-  }
-  
-  .listButton:hover {
-    background-color: #0056b3;
-  }
-  
-  .modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .modal h2 {
-    margin-bottom: 1.5rem;
-    color: #333;
-  }
-  
-  .modal form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .modal input,
-  .modal textarea,
-  .modal select {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-  }
-  
-  .modal textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-  
-  .modalButtons {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .submitButton,
-  .cancelButton {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    flex: 1;
-  }
-  
-  .submitButton {
-    background-color: #28a745;
-    color: white;
-  }
-  
-  .submitButton:hover {
-    background-color: #218838;
-  }
-  
-  .cancelButton {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .cancelButton:hover {
-    background-color: #c82333;
-  }
-  
-  .productsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-  }
-  
-  .productCard {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.2s;
-    background-color: white;
-  }
-  
-  .productCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .productImage {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-  }
-  
-  .productImage img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .productInfo {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Content Layout */
+.contentWrapper {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+}
+
+/* Filter Sidebar */
+.filterSidebar {
+  flex: 0 0 300px;
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filterGroup {
+  margin-bottom: 1.5rem;
+}
+
+.filterTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+}
+
+.priceInputs {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.input {
+  flex: 1;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.categoryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.categoryLabel {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #34495e;
+}
+
+.checkbox {
+  margin-right: 0.5rem;
+  accent-color: #3498db;
+}
+
+.applyButton {
+  background-color: #007bff;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.applyButton:hover {
+  background-color: #0056b3;
+}
+
+/* Product Grid */
+.productsGridContainer {
+  flex: 1;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.productCard {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s;
+  background-color: white;
+}
+
+.productCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.productCard:hover .productImage img {
+  transform: scale(1.05);
+  transition: transform 0.3s;
+}
+
+.productImage {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.productImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productInfo {
+  padding: 1rem;
+}
+
+.productInfo h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.priceInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.salePrice {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.listPrice {
+  text-decoration: line-through;
+  color: #666;
+}
+
+.discount {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.store {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dealLink {
+  background-color: #007bff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.dealLink:hover {
+  background-color: #0056b3;
+}
+
+.ratingButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.likeButton,
+.dislikeButton {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.likeButton:hover,
+.dislikeButton:hover {
+  background-color: #f0f0f0;
+}
+
+.active {
+  background-color: #e9ecef;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.modal textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.submitButton,
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.submitButton {
+  background-color: #28a745;
+  color: white;
+}
+
+.submitButton:hover {
+  background-color: #218838;
+}
+
+.cancelButton {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancelButton:hover {
+  background-color: #c82333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
     padding: 1rem;
   }
-  
-  .productInfo h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.1rem;
-    color: #333;
+
+  .contentWrapper {
+    flex-direction: column;
   }
-  
-  .priceInfo {
-    display: flex;
-    align-items: center;
+
+  .filterSidebar {
+    flex: 0 0 100%;
+    margin-bottom: 2rem;
+  }
+
+  .productsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
-    margin-bottom: 0.5rem;
   }
-  
-  .salePrice {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #28a745;
+
+  .modal {
+    padding: 1rem;
+    width: 95%;
   }
-  
-  .listPrice {
-    text-decoration: line-through;
-    color: #666;
-  }
-  
-  .discount {
-    background-color: #dc3545;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-  }
-  
-  .store {
-    color: #666;
-    margin-bottom: 1rem;
-  }
-  
-  .actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .dealLink {
-    background-color: #007bff;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.9rem;
-  }
-  
-  .dealLink:hover {
-    background-color: #0056b3;
-  }
-  
-  .ratingButtons {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .likeButton,
-  .dislikeButton {
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-  
-  .likeButton:hover,
-  .dislikeButton:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .active {
-    background-color: #e9ecef;
-  }
-  
-  @media (max-width: 768px) {
-    .container {
-      padding: 1rem;
-    }
-  
-    .productsGrid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-  
-    .modal {
-      padding: 1rem;
-      width: 95%;
-    }
-  }
+}

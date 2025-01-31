@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getProducts, createProduct, updateProductRating } from '../services/api';
 import styles from './ProductPage.module.css';
+import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
+
+const initialPriceRange = { min: 0, max: 1000 };
+
 const ProductPage = ({ showModal, setShowModal }) => {
   const [products, setProducts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -20,61 +24,81 @@ const ProductPage = ({ showModal, setShowModal }) => {
     'Sports & Outdoors', 'Toys & Games', 'Beauty', 'Automotive'
   ];
 
-  useEffect(() => {
-    fetchProducts();
-    // Simulate getting current user - replace with your actual auth logic
-    setCurrentUser({ _id: 'user123', name: 'Test User' });
-  }, []);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
-  const fetchProducts = async () => {
+  // Memoize fetchProducts function
+  const fetchProducts = useCallback(async (filters) => {
     try {
-      console.log('Fetching products...');
-      const data = await getProducts();
-      console.log('Products received:', data);
+      const queryFilters = {
+        categories: filters.selectedCategories?.length > 0 ? 
+          filters.selectedCategories.join(',') : undefined,
+        min: undefined,
+        max: undefined,
+      };
+
+      const { min, max } = filters.priceRange;
+      if (min !== initialPriceRange.min || max !== initialPriceRange.max) {
+        queryFilters.min = min;
+        queryFilters.max = max;
+      }
+
+      const data = await getProducts(queryFilters);
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
     }
-  };
+  }, []);
 
-  const handleLike = async (productId) => {
+  // Set currentUser on mount
+  useEffect(() => {
+    setCurrentUser({ _id: 'user123', name: 'Test User' });
+  }, []);
+
+  // Fetch products when filters or fetchProducts change
+  useEffect(() => {
+    fetchProducts({ priceRange, selectedCategories });
+  }, [priceRange, selectedCategories, fetchProducts]);
+
+  const handleFilterUpdate = useCallback((newPriceRange, newSelectedCategories) => {
+    setPriceRange(newPriceRange);
+    setSelectedCategories(newSelectedCategories);
+    fetchProducts({ priceRange: newPriceRange, selectedCategories: newSelectedCategories });
+  }, [fetchProducts]);
+
+  const handleLike = useCallback(async (productId) => {
     try {
-        if (!currentUser) {
-            alert('Please login to like products');
-            return;
+      if (!currentUser) {
+        alert('Please login to like products');
+        return;
+      }
+
+      const response = await updateProductRating(productId, {
+        action: 'like',
+        userId: currentUser._id
+      });
+
+      setProducts(products.map(product => {
+        if (product._id === productId) {
+          return {
+            ...product,
+            likes: response.userLiked 
+              ? [...(product.likes || []), currentUser._id]
+              : product.likes.filter(id => id !== currentUser._id),
+            dislikes: response.userDisliked 
+              ? [...(product.dislikes || []), currentUser._id]
+              : product.dislikes.filter(id => id !== currentUser._id)
+          };
         }
-
-        console.log('Sending like request for product:', productId);
-        
-        const response = await updateProductRating(productId, {
-            action: 'like',
-            userId: currentUser._id
-        });
-
-        console.log('Received response:', response);
-
-        setProducts(products.map(product => {
-            if (product._id === productId) {
-                return {
-                    ...product,
-                    likes: response.userLiked ? 
-                        (product.likes || []).concat(currentUser._id) : 
-                        (product.likes || []).filter(id => id !== currentUser._id),
-                    dislikes: response.userDisliked ? 
-                        (product.dislikes || []).concat(currentUser._id) : 
-                        (product.dislikes || []).filter(id => id !== currentUser._id)
-                };
-            }
-            return product;
-        }));
+        return product;
+      }));
     } catch (error) {
-        console.error('Error updating like:', error);
-        alert('Failed to update like status. Please try again.');
+      console.error('Error updating like:', error);
+      alert('Failed to update like status. Please try again.');
     }
-};
+  }, [currentUser, products]);
 
-
-  const handleDislike = async (productId) => {
+  const handleDislike = useCallback(async (productId) => {
     try {
       if (!currentUser) {
         alert('Please login to dislike products');
@@ -90,10 +114,12 @@ const ProductPage = ({ showModal, setShowModal }) => {
         if (product._id === productId) {
           return {
             ...product,
-            likes: response.userLiked ? [...product.likes, currentUser._id] :
-              product.likes.filter(id => id !== currentUser._id),
-            dislikes: response.userDisliked ? [...product.dislikes, currentUser._id] :
-              product.dislikes.filter(id => id !== currentUser._id)
+            likes: response.userLiked 
+              ? [...(product.likes || []), currentUser._id]
+              : product.likes.filter(id => id !== currentUser._id),
+            dislikes: response.userDisliked 
+              ? [...(product.dislikes || []), currentUser._id]
+              : product.dislikes.filter(id => id !== currentUser._id)
           };
         }
         return product;
@@ -101,7 +127,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
     } catch (error) {
       console.error('Error updating dislike:', error);
     }
-  };
+  }, [currentUser, products]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,7 +143,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
         category: '',
         store: ''
       });
-      fetchProducts();
+      await fetchProducts({ priceRange, selectedCategories });
     } catch (error) {
       console.error('Error creating product:', error);
     }
@@ -197,7 +223,14 @@ const ProductPage = ({ showModal, setShowModal }) => {
           </div>
         </div>
       )}
-
+      <div className={styles.contentWrapper}>
+        <div className={styles.filterSidebar}>
+          <ProductFilter 
+            categories={categories}
+            onFilterUpdate={handleFilterUpdate}
+          />
+        </div>
+      </div>
       <div className={styles.productsGrid}>
         {products.map((product) => (
           <div key={product._id} className={styles.productCard}>
@@ -215,35 +248,35 @@ const ProductPage = ({ showModal, setShowModal }) => {
               </div>
               <p className={styles.store}>From: {product.store}</p>
               <div className={styles.actions}>
-  <Link
-    to={`/products/${product._id}`}
-    className={styles.viewDetailsButton}
-  >
-    View Details
-  </Link>
-  <a
-    href={product.dealUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    className={styles.dealLink}
-  >
-    View Deal
-  </a>
-  <div className={styles.ratingButtons}>
-    <button 
-      onClick={() => handleLike(product._id)} 
-      className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
-    >
-      👍 {product.likes?.length || 0}
-    </button>
-    <button 
-      onClick={() => handleDislike(product._id)}
-      className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
-    >
-      👎 {product.dislikes?.length || 0}
-    </button>
-  </div>
-</div>
+                <Link
+                  to={`/products/${product._id}`}
+                  className={styles.viewDetailsButton}
+                >
+                  View Details
+                </Link>
+                <a
+                  href={product.dealUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.dealLink}
+                >
+                  View Deal
+                </a>
+                <div className={styles.ratingButtons}>
+                  <button 
+                    onClick={() => handleLike(product._id)} 
+                    className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
+                  >
+                    👍 {product.likes?.length || 0}
+                  </button>
+                  <button 
+                    onClick={() => handleDislike(product._id)}
+                    className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
+                  >
+                    👎 {product.dislikes?.length || 0}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         ))}

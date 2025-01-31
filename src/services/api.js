@@ -37,18 +37,16 @@ export const signOut = async() => {
 };
 
 // Product services
-export const getProducts = async() => {
+// services/api.js
+export const getProducts = async (filters) => {
     try {
-        console.log('Making API call to:', `${api.defaults.baseURL}/products`);
-        const response = await api.get('/products');
-        console.log('API response:', response);
-        return response.data;
+      const response = await api.get('/products', { params: filters });
+      return response.data;
     } catch (error) {
-        console.error('API error:', error);
-        throw error;
+      console.error('API error:', error);
+      throw error;
     }
-};
-
+  };
 
 export const createProduct = async(productData) => {
     const response = await api.post('/products', productData);

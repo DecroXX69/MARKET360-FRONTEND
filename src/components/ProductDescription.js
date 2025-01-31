@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById, updateProductRating } from '../services/api';
+import { getProductById,  toggleLike, toggleDislike  } from '../services/api';
 import styles from './ProductDescription.module.css';
 
 const ProductDescription = ({ currentUser }) => {
@@ -22,29 +22,62 @@ const ProductDescription = ({ currentUser }) => {
     if (id) fetchProduct();
   }, [id]);
 
-  const handleInteraction = async (action) => {
-    if (!currentUser) {
-      alert('Please log in to interact');
-      return;
-    }
-
+  const handleLike = async () => {
     try {
-      const updatedProduct = { ...product };
-      if (action === 'like') {
-        updatedProduct.likes = product.likes?.includes(currentUser._id)
-          ? product.likes.filter(id => id !== currentUser._id)
-          : [...(product.likes || []), currentUser._id];
-        updatedProduct.dislikes = product.dislikes?.filter(id => id !== currentUser._id);
-      } else {
-        updatedProduct.dislikes = product.dislikes?.includes(currentUser._id)
-          ? product.dislikes.filter(id => id !== currentUser._id)
-          : [...(product.dislikes || []), currentUser._id];
-        updatedProduct.likes = product.likes?.filter(id => id !== currentUser._id);
+      if (!currentUser) {
+        alert('Please login to like products');
+        return;
       }
-
-      setProduct(updatedProduct);
-      await updateProductRating(id, { action, userId: currentUser._id });
-    } catch {}
+  
+      console.log('Sending like request for product:', id);
+  
+      const response = await toggleLike(id, {
+        action: 'like',
+        userId: currentUser._id
+      });
+  
+      console.log('Received response:', response);
+  
+      setProduct({
+        ...product,
+        likeCount: response.likeCount,
+        dislikeCount: response.dislikeCount,
+        likes: response.likes,
+        dislikes: response.dislikes
+      });
+    } catch (error) {
+      console.error('Error updating like:', error);
+      alert('Failed to update like status. Please try again.');
+    }
+  };
+  
+  const handleDislike = async () => {
+    try {
+      if (!currentUser) {
+        alert('Please login to dislike products');
+        return;
+      }
+  
+      console.log('Sending dislike request for product:', id);
+  
+      const response = await toggleDislike(id, {
+        action: 'dislike',
+        userId: currentUser._id
+      });
+  
+      console.log('Received response:', response);
+  
+      setProduct({
+        ...product,
+        likeCount: response.likeCount,
+        dislikeCount: response.dislikeCount,
+        likes: response.likes,
+        dislikes: response.dislikes
+      });
+    } catch (error) {
+      console.error('Error updating dislike:', error);
+      alert('Failed to update dislike status. Please try again.');
+    }
   };
 
   if (loading) {
@@ -125,19 +158,19 @@ const ProductDescription = ({ currentUser }) => {
             </a>
 
             <div className={styles.ratingButtons}>
-              <button
-                onClick={() => handleInteraction('like')}
-                className={`${styles.btnLike} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
-              >
-                👍 {product.likes?.length || 0}
-              </button>
-              <button
-                onClick={() => handleInteraction('dislike')}
-                className={`${styles.btnDislike} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
-              >
-                👎 {product.dislikes?.length || 0}
-              </button>
-            </div>
+  <button
+    onClick={handleLike}
+    className={`${styles.btnLike} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
+  >
+    👍 {product.likeCount || 0}
+  </button>
+  <button
+    onClick={handleDislike}
+    className={`${styles.btnDislike} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
+  >
+    👎 {product.dislikeCount || 0}
+  </button>
+</div>
           </div>
 
           <div className={styles.descriptionSection}>

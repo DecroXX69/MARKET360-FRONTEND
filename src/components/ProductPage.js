@@ -3,7 +3,7 @@ import { getProducts, createProduct, updateProductRating, toggleDislike, toggleL
 import styles from './ProductPage.module.css';
 import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
-
+import toast from 'react-hot-toast';
 const initialPriceRange = { min: 0, max: 1000 };
 
 const ProductPage = ({ showModal, setShowModal }) => {
@@ -16,7 +16,8 @@ const ProductPage = ({ showModal, setShowModal }) => {
     listPrice: '',
     description: '',
     category: '',
-    store: ''
+    store: '',
+    image: null // Add this for image file
   });
 
   const categories = [
@@ -26,6 +27,15 @@ const ProductPage = ({ showModal, setShowModal }) => {
 
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewProduct({ ...newProduct, image: file });
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
   // Memoize fetchProducts function
   const fetchProducts = useCallback(async (filters) => {
@@ -150,6 +160,50 @@ const ProductPage = ({ showModal, setShowModal }) => {
     }
   };
 
+
+
+  const handleSaveProduct = async (productId) => {
+    try {
+      // Frontend-only for now
+      setProducts(products.map(product => {
+        if (product._id === productId) {
+          return {
+            ...product,
+            isSaved: !product.isSaved
+          };
+        }
+        return product;
+      }));
+      
+      // Show feedback
+      toast.success(
+        products.find(p => p._id === productId).isSaved 
+          ? 'Removed from saved deals' 
+          : 'Added to saved deals'
+      );
+    } catch (error) {
+      console.error('Error saving product:', error);
+    }
+  };
+  
+  const handleShareProduct = async (productId) => {
+    const shareUrl = `${window.location.origin}/products/${productId}`;
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Link copied to clipboard!');
+    } catch (error) {
+      console.error('Error sharing product:', error);
+      // Fallback
+      const tempInput = document.createElement('input');
+      document.body.appendChild(tempInput);
+      tempInput.value = shareUrl;
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      toast.success('Link copied to clipboard!');
+    }
+  };
   return (
     <div className={styles.container}>
       {showModal && (
@@ -208,6 +262,40 @@ const ProductPage = ({ showModal, setShowModal }) => {
                 onChange={(e) => setNewProduct({ ...newProduct, store: e.target.value })}
                 required
               />
+                <div className={styles.imageUploadSection}>
+        {imagePreview ? (
+          <div className={styles.previewContainer}>
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className={styles.imagePreview} 
+            />
+            <button 
+              type="button" 
+              onClick={() => {
+                setImagePreview(null);
+                setNewProduct({ ...newProduct, image: null });
+              }}
+              className={styles.removeImage}
+            >
+              Remove Image
+            </button>
+          </div>
+        ) : (
+          <div className={styles.uploadContainer}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              id="dealImage"
+              className={styles.fileInput}
+            />
+            <label htmlFor="dealImage" className={styles.uploadLabel}>
+              📸 Add Deal Image
+            </label>
+          </div>
+        )}
+      </div>
               <div className={styles.modalButtons}>
                 <button type="submit" className={styles.submitButton}>
                   Submit New Deal
@@ -255,6 +343,21 @@ const ProductPage = ({ showModal, setShowModal }) => {
                 >
                   View Details
                 </Link>
+                {/* Add Save button */}
+  <button 
+    onClick={() => handleSaveProduct(product._id)}
+    className={`${styles.saveButton} ${product.isSaved ? styles.saved : ''}`}
+  >
+    {product.isSaved ? '❤️ Saved' : '🤍 Save'}
+  </button>
+  
+  {/* Add Share button */}
+  <button 
+    onClick={() => handleShareProduct(product._id)}
+    className={styles.shareButton}
+  >
+    🔗 Share
+  </button>
                 <a
                   href={product.dealUrl}
                   target="_blank"

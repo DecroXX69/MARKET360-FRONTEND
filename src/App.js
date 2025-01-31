@@ -5,15 +5,18 @@ import AuthPage from './components/AuthPage';
 import ProductPage from './components/ProductPage';
 import './index.css';
 import Navbar from './components/Navbar';
-
+import ProfilePage from './components/ProfilePage';
 const App = () => {
     const isAuthenticated = !!localStorage.getItem('token');
     console.log('Is authenticated:', isAuthenticated);
 
     return ( <
         Router >
-        <div className = "app-container" > {
-            /* <Routes>
+        <div className = "app-container" > 
+        
+       {/*
+        
+             <Routes>
                       <Route 
                         path="/" 
                         element={isAuthenticated ? <Navigate to="/products" /> : <Navigate to="/auth" />} 
@@ -26,13 +29,11 @@ const App = () => {
                         path="/products" 
                         element={isAuthenticated ? <ProductPage /> : <Navigate to="/auth" />} 
                       />
-                    </Routes> */
-
-                    /*<ProductPage/>*/
-        } 
-        
-        
-        <Navbar/>
+                    </Routes> 
+                    <ProductPage/>
+                    */}
+                    <Navbar/>       
+        <ProfilePage/>
         </div> </Router >
     );
 };

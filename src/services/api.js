@@ -54,12 +54,12 @@ export const createProduct = async(productData) => {
 };
 
 export const toggleLike = async(productId) => {
-    const response = await api.post(`/products/${productId}/like`);
+    const response = await api.put(`/products/${productId}/like`);
     return response.data;
 };
 
 export const toggleDislike = async(productId) => {
-    const response = await api.post(`/products/${productId}/dislike`);
+    const response = await api.put(`/products/${productId}/dislike`);
     return response.data;
 };
 

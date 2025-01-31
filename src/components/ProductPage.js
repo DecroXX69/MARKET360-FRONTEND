@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getProducts, createProduct, updateProductRating } from '../services/api';
+import { getProducts, createProduct, updateProductRating, toggleDislike, toggleLike } from '../services/api';
 import styles from './ProductPage.module.css';
 import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
@@ -69,33 +69,33 @@ const ProductPage = ({ showModal, setShowModal }) => {
   const handleLike = useCallback(async (productId) => {
     try {
       if (!currentUser) {
-        alert('Please login to like products');
-        return;
+          alert('Please login to like products');
+          return;
       }
 
-      const response = await updateProductRating(productId, {
-        action: 'like',
-        userId: currentUser._id
+      console.log('Sending like request for product:', productId);
+
+      const response = await toggleLike(productId, {
+          action: 'like',
+          userId: currentUser._id
       });
 
+      console.log('Received response:', response);
+
       setProducts(products.map(product => {
-        if (product._id === productId) {
-          return {
-            ...product,
-            likes: response.userLiked 
-              ? [...(product.likes || []), currentUser._id]
-              : product.likes.filter(id => id !== currentUser._id),
-            dislikes: response.userDisliked 
-              ? [...(product.dislikes || []), currentUser._id]
-              : product.dislikes.filter(id => id !== currentUser._id)
-          };
-        }
-        return product;
+          if (product._id === productId) {
+              return {
+                ...product,
+                likeCount: response.likeCount, // Update likeCount
+                dislikeCount: response.dislikeCount // Update dislikeCount
+            };
+          }
+          return product;
       }));
-    } catch (error) {
+  } catch (error) {
       console.error('Error updating like:', error);
       alert('Failed to update like status. Please try again.');
-    }
+  }
   }, [currentUser, products]);
 
   const handleDislike = useCallback(async (productId) => {
@@ -105,28 +105,29 @@ const ProductPage = ({ showModal, setShowModal }) => {
         return;
       }
 
-      const response = await updateProductRating(productId, {
+      console.log('Sending Dislike request for product:', productId);
+
+      const response = await toggleDislike(productId, {
         action: 'dislike',
         userId: currentUser._id
       });
 
-      setProducts(products.map(product => {
-        if (product._id === productId) {
+      console.log('Received response:', response);
+
+    setProducts(products.map(product => {
+      if (product._id === productId) {
           return {
             ...product,
-            likes: response.userLiked 
-              ? [...(product.likes || []), currentUser._id]
-              : product.likes.filter(id => id !== currentUser._id),
-            dislikes: response.userDisliked 
-              ? [...(product.dislikes || []), currentUser._id]
-              : product.dislikes.filter(id => id !== currentUser._id)
-          };
-        }
-        return product;
-      }));
-    } catch (error) {
-      console.error('Error updating dislike:', error);
-    }
+            likeCount: response.likeCount, // Update likeCount
+            dislikeCount: response.dislikeCount // Update dislikeCount
+        };
+      }
+      return product;
+  }));
+} catch (error) {
+  console.error('Error updating dislike:', error);
+  alert('Failed to update dislike status. Please try again.');
+}
   }, [currentUser, products]);
 
   const handleSubmit = async (e) => {
@@ -267,13 +268,13 @@ const ProductPage = ({ showModal, setShowModal }) => {
                     onClick={() => handleLike(product._id)} 
                     className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
                   >
-                    👍 {product.likes?.length || 0}
+                    👍 {product.likeCount|| 0}
                   </button>
                   <button 
                     onClick={() => handleDislike(product._id)}
                     className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
                   >
-                    👎 {product.dislikes?.length || 0}
+                    👎 {product.dislikeCount|| 0}
                   </button>
                 </div>
               </div>

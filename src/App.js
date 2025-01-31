@@ -5,6 +5,7 @@ import ProductPage from './components/ProductPage';
 import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
@@ -66,6 +67,7 @@ const App = () => {
           />
         </Routes>
       </div>
+      <Footer />
     </Router>
   );
 };

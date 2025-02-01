@@ -100,14 +100,14 @@ const Navbar = ({ handlePostDeal }) => {
   return (
     <div className={styles.navbarWrapper}>
       <div className={styles.topBanner}>
-        Market360 is community-supported. We may get paid by brands for deals, including promoted items.
+        TheMarket360 is community-supported. We may get paid by brands for deals, including promoted items.
       </div>
 
       <nav className={styles.mainNav}>
         <div className={styles.container}>
           <Link to="/" className={styles.logo}>
             {/* <img src={market} alt="Market360" /> */}
-            <h4>Market360</h4>
+            <h4>TheMarket360</h4>
           </Link>
 
           <div className={styles.searchSection}>

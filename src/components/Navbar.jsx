@@ -94,7 +94,8 @@ const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout, currentUser }) 
       <nav className={styles.mainNav}>
         <div className={styles.container}>
           <Link to="/" className={styles.logo}>
-            <img src={market} alt="Market360" />
+            {/* <img src={market} alt="Market360" /> */}
+            <h4>Market360</h4>
           </Link>
 
           <div className={styles.searchSection}>

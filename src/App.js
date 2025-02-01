@@ -6,6 +6,7 @@ import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import { AuthProvider } from './context/AuthContext';
 
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
@@ -44,6 +45,7 @@ const App = () => {
 };
 
   return (
+    <AuthProvider>
     <Router>
       <Navbar 
         handlePostDeal={handlePostDeal}
@@ -69,6 +71,7 @@ const App = () => {
       </div>
       <Footer />
     </Router>
+    </AuthProvider>
   );
 };
 

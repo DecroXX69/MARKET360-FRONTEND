@@ -2,6 +2,27 @@
     width: 100%;
 }
 
+.userProfileButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+  }
+  
+  .userProfileButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .userIcon {
+    font-size: 20px;
+  }
+
 .topBanner {
     background-color: #7764a0;
     color: white;

@@ -7,17 +7,29 @@ import { FaUser } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { HiTrendingUp } from 'react-icons/hi';
 import { getProducts } from '../services/api';
+import { useAuth } from '../context/AuthContext'; // Make sure to import useAuth
 import market from '../assets/market360.jpeg';
-const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout, currentUser }) => {
+
+// Remove currentUser and handleLogout from props since we'll get them from useAuth
+const Navbar = ({ handlePostDeal }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const { currentUser, logout } = useAuth();
   const [searchHistory, setSearchHistory] = useState(() => {
-    // Initialize search history from localStorage
     const savedHistory = localStorage.getItem('searchHistory');
     return savedHistory ? JSON.parse(savedHistory) : [];
   });
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
 
   // Handle search input with debounce
   useEffect(() => {
@@ -167,41 +179,44 @@ const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout, currentUser }) 
           </div>
 
           <div className={styles.actionButtons}>
-            <Link to="/alerts" className={styles.actionButton}>
-              <BsBellFill className={styles.icon} style={{color: '#ff1a75'}} />
-              <span>Deal Alerts</span>
-            </Link>
-            
-            <button 
-              onClick={handlePostDeal}
-              className={styles.actionButton}
-              type="button"
-            >
-              <IoAddCircle className={styles.icon} style={{color: '#2196f3'}} />
-              <span>Post a Deal</span>
-            </button>
+      <Link to="/alerts" className={styles.actionButton}>
+        <BsBellFill className={styles.icon} style={{color: '#ff1a75'}} />
+        <span>Deal Alerts</span>
+      </Link>
+      
+      <button 
+        onClick={handlePostDeal}
+        className={styles.actionButton}
+        type="button"
+      >
+        <IoAddCircle className={styles.icon} style={{color: '#2196f3'}} />
+        <span>Post a Deal</span>
+      </button>
 
-            {isAuthenticated ? (
-              <div className={styles.userSection}>
-                <span className={styles.userName}>
-                  Hello, {currentUser?.username || currentUser?.name}
-                </span>
-                <button 
-                  onClick={handleLogout} 
-                  className={styles.actionButton}
-                  type="button"
-                >
-                  <FaUser className={styles.icon} style={{color: '#ff7043'}} />
-                  <span>Logout</span>
-                </button>
-              </div>
-            ) : (
-              <Link to="/auth" className={styles.actionButton}>
-                <FaUser className={styles.icon} style={{color: '#ff7043'}} />
-                <span>Sign Up</span>
-              </Link>
-            )}
-          </div>
+      {currentUser ? (
+        <div className={styles.userSection}>
+          <button 
+            onClick={handleProfileClick}
+            className={styles.userProfileButton}
+          >
+            <FaUser className={styles.userIcon} />
+            <span>Hello, {currentUser.username || currentUser.name}</span>
+          </button>
+          <button 
+            onClick={handleLogout} 
+            className={styles.actionButton}
+            type="button"
+          >
+            <span>Logout</span>
+          </button>
+        </div>
+      ) : (
+        <Link to="/auth" className={styles.actionButton}>
+          <FaUser className={styles.icon} style={{color: '#ff7043'}} />
+          <span>Sign Up</span>
+        </Link>
+      )}
+    </div>
         </div>
       </nav>
 

@@ -5,7 +5,8 @@ import ProductPage from './components/ProductPage';
 import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';
-
+import ShoppingCart from './components/ShoppingCart';
+import Footer from './components/Footer';
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -63,6 +64,8 @@ const App = () => {
           />
         </Routes>
       </div>
+      <ShoppingCart />
+      <Footer />
     </Router>
   );
 };

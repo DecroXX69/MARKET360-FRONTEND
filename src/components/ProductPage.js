@@ -324,7 +324,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
         {products.map((product) => (
           <div key={product._id} className={styles.productCard}>
             <div className={styles.productImage}>
-              <img src="/placeholder-product.jpg" alt={product.title} />
+              <img src="https://sm.mashable.com/t/mashable_in/article/i/ive-review/ive-reviewed-over-59-laptops-and-this-is-the-best-windows-la_rzds.1248.jpg" alt={product.title} />
             </div>
             <div className={styles.productInfo}>
               <h3>{product.title}</h3>

@@ -5,8 +5,9 @@ import ProductPage from './components/ProductPage';
 import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';
-import ShoppingCart from './components/ShoppingCart';
 import Footer from './components/Footer';
+import { AuthProvider } from './context/AuthContext';
+
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -23,9 +24,10 @@ const App = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      setCurrentUser({ _id: 'user123', name: 'Test User' });
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        setCurrentUser(userData);
     }
-  }, [isAuthenticated]);
+}, [isAuthenticated]);
 
   const handlePostDeal = () => {
     if (!isAuthenticated) {
@@ -37,10 +39,13 @@ const App = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user'); // Add this line
+    setCurrentUser(null);
     setIsAuthenticated(false);
-  };
+};
 
   return (
+    <AuthProvider>
     <Router>
       <Navbar 
         handlePostDeal={handlePostDeal}
@@ -66,7 +71,9 @@ const App = () => {
       </div>
       <ShoppingCart />
       <Footer />
+      <Footer />
     </Router>
+    </AuthProvider>
   );
 };
 

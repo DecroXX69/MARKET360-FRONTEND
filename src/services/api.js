@@ -17,6 +17,10 @@ api.interceptors.request.use((config) => {
 // Auth services
 export const signIn = async(email, password) => {
     const response = await api.post('/auth/signin', { email, password });
+    if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user)); // Add this line
+    }
     return response.data;
 };
 
@@ -38,9 +42,15 @@ export const signOut = async() => {
 
 // Product services
 // services/api.js
+// In api.js, modify getProducts
 export const getProducts = async (filters) => {
     try {
-      const response = await api.get('/products', { params: filters });
+      const response = await api.get('/products', { 
+        params: {
+          ...filters,
+          search: filters.search // Add search parameter
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('API error:', error);

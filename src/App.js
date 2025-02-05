@@ -71,9 +71,8 @@ const App = () => {
           <Route path="/profile" element={<UserProfile  currentUser={currentUser} isAuthenticated={isAuthenticated} />} />
         </Routes>
       </div>
-      
+     
       <Footer />
-      
     </Router>
     </AuthProvider>
   );

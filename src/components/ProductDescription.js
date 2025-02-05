@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById,  toggleLike, toggleDislike  } from '../services/api';
+import { getProductById } from '../services/api';
 import styles from './ProductDescription.module.css';
 
 const ProductDescription = ({ currentUser }) => {
@@ -8,6 +8,8 @@ const ProductDescription = ({ currentUser }) => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -16,69 +18,19 @@ const ProductDescription = ({ currentUser }) => {
         setProduct(data);
         setLoading(false);
       } catch {
+        setError(true);
         setLoading(false);
       }
     };
-    if (id) fetchProduct();
+
+    if (id) {
+      fetchProduct();
+    }
   }, [id]);
 
-  const handleLike = async () => {
-    try {
-      if (!currentUser) {
-        alert('Please login to like products');
-        return;
-      }
-  
-      console.log('Sending like request for product:', id);
-  
-      const response = await toggleLike(id, {
-        action: 'like',
-        userId: currentUser._id
-      });
-  
-      console.log('Received response:', response);
-  
-      setProduct({
-        ...product,
-        likeCount: response.likeCount,
-        dislikeCount: response.dislikeCount,
-        likes: response.likes,
-        dislikes: response.dislikes
-      });
-    } catch (error) {
-      console.error('Error updating like:', error);
-      alert('Failed to update like status. Please try again.');
-    }
-  };
-  
-  const handleDislike = async () => {
-    try {
-      if (!currentUser) {
-        alert('Please login to dislike products');
-        return;
-      }
-  
-      console.log('Sending dislike request for product:', id);
-  
-      const response = await toggleDislike(id, {
-        action: 'dislike',
-        userId: currentUser._id
-      });
-  
-      console.log('Received response:', response);
-  
-      setProduct({
-        ...product,
-        likeCount: response.likeCount,
-        dislikeCount: response.dislikeCount,
-        likes: response.likes,
-        dislikes: response.dislikes
-      });
-    } catch (error) {
-      console.error('Error updating dislike:', error);
-      alert('Failed to update dislike status. Please try again.');
-    }
-  };
+  const discount = product && product.listPrice > 0
+    ? Math.round(((product.listPrice - product.salePrice) / product.listPrice) * 100)
+    : 0;
 
   if (loading) {
     return (
@@ -88,7 +40,7 @@ const ProductDescription = ({ currentUser }) => {
     );
   }
 
-  if (!product) {
+  if (error) {
     return (
       <div className={styles.errorScreen}>
         <h2 className={styles.errorTitle}>Product Not Found</h2>
@@ -102,10 +54,6 @@ const ProductDescription = ({ currentUser }) => {
       </div>
     );
   }
-
-  const discount = Math.round(
-    ((product.listPrice - product.salePrice) / product.listPrice) * 100
-  );
 
   return (
     <div className={styles.productContainer}>
@@ -122,16 +70,35 @@ const ProductDescription = ({ currentUser }) => {
       <main className={styles.mainContent}>
         <section className={styles.imageSection}>
           <div className={styles.productImageContainer}>
-            <img 
-              src="/placeholder-product.jpg"
-              alt={product.title}
-              className={styles.productImage}
-            />
-          </div>
-          <div className={styles.gallery}>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className={styles.galleryItem}></div>
-            ))}
+            {product.images[selectedImageIndex] ? (
+              <img
+                src={product.images[selectedImageIndex].url}
+                alt={product.title}
+                className={styles.productImage}
+              />
+            ) : (
+              <div className={styles.noImage}>
+                No Image Available
+              </div>
+            )}
+            
+            {product.images.length > 1 && (
+              <div className={styles.gallery}>
+                {product.images.map((image, index) => (
+                  <div 
+                    key={index} 
+                    className={`${styles.galleryItem} ${index === selectedImageIndex ? styles.active : ''}`}
+                    onClick={() => setSelectedImageIndex(index)}
+                  >
+                    <img 
+                      src={image.url} 
+                      alt={product.title} 
+                      className={styles.galleryThumb}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -140,7 +107,9 @@ const ProductDescription = ({ currentUser }) => {
             <div className={styles.priceBlock}>
               <span className={styles.salePrice}>${product.salePrice}</span>
               <span className={styles.originalPrice}>${product.listPrice}</span>
-              <span className={styles.discount}>{discount}% OFF</span>
+              <span className={styles.discount}>
+                {discount}% OFF
+              </span>
             </div>
 
             <div className={styles.storeInfo}>
@@ -156,21 +125,6 @@ const ProductDescription = ({ currentUser }) => {
             >
               Get Deal at {product.store}
             </a>
-
-            <div className={styles.ratingButtons}>
-  <button
-    onClick={handleLike}
-    className={`${styles.btnLike} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
-  >
-    👍 {product.likeCount || 0}
-  </button>
-  <button
-    onClick={handleDislike}
-    className={`${styles.btnDislike} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
-  >
-    👎 {product.dislikeCount || 0}
-  </button>
-</div>
           </div>
 
           <div className={styles.descriptionSection}>

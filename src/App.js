@@ -70,8 +70,7 @@ const App = () => {
           <Route path="/profile" element={<UserProfile  currentUser={currentUser} isAuthenticated={isAuthenticated} />} />
         </Routes>
       </div>
-      <ShoppingCart />
-      <Footer />
+     
       <Footer />
     </Router>
     </AuthProvider>

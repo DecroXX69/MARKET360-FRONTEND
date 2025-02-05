@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { AuthProvider } from './context/AuthContext';
 import UserProfile from './components/ProfilePage';
+
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -70,9 +71,9 @@ const App = () => {
           <Route path="/profile" element={<UserProfile  currentUser={currentUser} isAuthenticated={isAuthenticated} />} />
         </Routes>
       </div>
-      <ShoppingCart />
+      
       <Footer />
-      <Footer />
+      
     </Router>
     </AuthProvider>
   );

@@ -2,6 +2,27 @@
     width: 100%;
 }
 
+.userProfileButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+  }
+  
+  .userProfileButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .userIcon {
+    font-size: 20px;
+  }
+
 .topBanner {
     background-color: #7764a0;
     color: white;
@@ -11,8 +32,9 @@
 }
 
 .mainNav {
-    background-color: #5b4d79;
+    background: linear-gradient(to right, #4a3d68, #5b4d79);
     padding: 12px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .container {
@@ -26,6 +48,25 @@
 .logo {
     width: 140px;
     margin-right: 16px;
+    text-decoration: none; /* Removes the underline from the link */
+    display: flex;
+    align-items: center;
+}
+
+.logo h4 {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+    /* margin-right: 89px; */
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.3s ease;
+    position: relative;
+    right: 33px;
+}
+
+.logo:hover h4 {
+    opacity: 0.9; /* Slight opacity change on hover */
 }
 
 .logo img {
@@ -62,6 +103,7 @@
     border: none;
     cursor: pointer;
     padding: 4px;
+    
 }
 
 .searchIcon {
@@ -83,6 +125,7 @@
     gap: 4px;
     cursor: pointer;
     font-size: 14px;
+    
 }
 
 .navItem:hover {
@@ -93,6 +136,7 @@
     display: flex;
     gap: 28px;
     margin-left: 32px;
+    
 }
 
 .actionButton {
@@ -103,6 +147,8 @@
     text-decoration: none;
     font-size: 12px;
     gap: 8px;
+    background: none;
+    border: none;
 }
 
 .actionButton:hover {
@@ -147,6 +193,57 @@
 .trendingIcon {
     font-size: 15px;
 }
+
+.searchResults {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .searchResultItem {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .searchResultItem:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .searchResultContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .productTitle {
+    font-weight: 500;
+  }
+  
+  .productPrice {
+    color: #2196f3;
+  }
+  
+  .userSection {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .userName {
+    font-weight: 500;
+    color: #333;
+  }
 
 @media (max-width: 992px) {
     .container {

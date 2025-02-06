@@ -6,6 +6,9 @@ import ProductPage from './components/ProductPage';
 import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import { AuthProvider } from './context/AuthContext';
+import UserProfile from './components/ProfilePage';
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { useMemo } from "react";
@@ -44,9 +47,10 @@ const App = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      setCurrentUser({ _id: 'user123', name: 'Test User' });
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        setCurrentUser(userData);
     }
-  }, [isAuthenticated]);
+}, [isAuthenticated]);
 
   const handlePostDeal = () => {
     if (!isAuthenticated) {
@@ -58,15 +62,14 @@ const App = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user'); // Add this line
+    setCurrentUser(null);
     setIsAuthenticated(false);
-  };
+};
 
   return (
-    <div className='app'>
-      <Router>
-       {/* <ThemeProvider theme={theme}>
-        <CssBaseline /> */}
-        
+    <AuthProvider>
+    <Router>
       <Navbar 
         handlePostDeal={handlePostDeal}
         isAuthenticated={isAuthenticated}
@@ -100,13 +103,13 @@ const App = () => {
             path="/products/:id"
             element={<ProductDescription currentUser={currentUser} />}
           />
-          {/* </Route> */}
+          <Route path="/profile" element={<UserProfile  currentUser={currentUser} isAuthenticated={isAuthenticated} />} />
         </Routes>
       </div>
-    
-    {/* </ThemeProvider> */}
+     
+      <Footer />
     </Router>
-    </div>
+    </AuthProvider>
   );
 };
 

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AuthPage.module.css';
 import { signIn, signUp } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const AuthPage = () => {
     username: ''
   });
   const [error, setError] = useState('');
-
+  const { login } = useAuth();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -22,7 +23,9 @@ const AuthPage = () => {
     try {
       if (isSignIn) {
         const response = await signIn(formData.email, formData.password);
+        
         localStorage.setItem('token', response.token);
+        login(response.user); 
         navigate('/products');
       } else {
         if (formData.password !== formData.confirmPassword) {
@@ -38,6 +41,7 @@ const AuthPage = () => {
         const response = await signUp(formData.email, formData.password, formData.username, formData.confirmPassword);
         console.log('Signup response:', response);
         localStorage.setItem('token', response.token);
+        login(response.user); 
         navigate('/products');
       }
     } catch (error) {

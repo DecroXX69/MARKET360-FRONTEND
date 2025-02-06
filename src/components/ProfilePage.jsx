@@ -32,7 +32,7 @@ const ProfilePage = () => {
 
   // Password validation function
   const validatePassword = (password) => {
-    // const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{16,}$/;
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{16,}$/;
     if (password.length < 16) {
       setPasswordError("Password must be at least 16 characters.");
     } else if (!/(?=.*[a-z])/.test(password)) {

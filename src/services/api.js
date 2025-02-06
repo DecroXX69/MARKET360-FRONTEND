@@ -3,8 +3,11 @@ import axios from 'axios';
 // Initialize Axios instance
 const api = axios.create({
     baseURL: process.env.REACT_APP_API_URL || 'https://localhost:5000/api',
-    timeout: 10000, // Set timeout to 10 seconds
+    timeout: 10000,
 });
+
+// Flag to prevent infinite logout loops
+let isLoggingOut = false;
 
 // Request interceptor for authorization header
 api.interceptors.request.use((config) => {
@@ -21,10 +24,18 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((response) => {
     return response;
 }, async (error) => {
-    if (error.response?.status === 401) {
-        // Handle unauthorized errors (e.g., token expired)
-        await signOut();
-        window.location.reload();
+    // Only handle 401 errors if we're not already logging out and it's not a sign-in attempt
+    if (error.response?.status === 401 && 
+        !isLoggingOut && 
+        !error.config.url.includes('/auth/signin')) {
+        
+        isLoggingOut = true;
+        try {
+            await signOut();
+            window.location.reload();
+        } finally {
+            isLoggingOut = false;
+        }
     }
     return Promise.reject(error);
 });
@@ -35,8 +46,11 @@ export const signIn = async (email, password) => {
         const response = await api.post('/auth/signin', { email, password });
         return response.data;
     } catch (error) {
-        console.error('Sign In Error:', error.response?.data?.message || error.message);
-        throw error;
+        // Handle 401 explicitly for signin
+        if (error.response?.status === 401) {
+            throw new Error('Invalid email or password');
+        }
+        throw new Error(error.response?.data?.message || 'An error occurred during sign in');
     }
 };
 
@@ -45,8 +59,7 @@ export const signUp = async (email, password, username, confirmPassword) => {
         const response = await api.post('/auth/signup', { email, password, username, confirmPassword });
         return response.data;
     } catch (error) {
-        console.error('Sign Up Error:', error.response?.data?.message || error.message);
-        throw error;
+        throw new Error(error.response?.data?.message || 'An error occurred during sign up');
     }
 };
 
@@ -56,8 +69,9 @@ export const signOut = async () => {
         localStorage.removeItem('token');
         return response.data;
     } catch (error) {
-        console.error('Sign Out Error:', error.response?.data?.message || error.message);
-        throw error;
+        // Just remove the token even if the API call fails
+        localStorage.removeItem('token');
+        return { message: 'Signed out locally' };
     }
 };
 

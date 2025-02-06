@@ -51,7 +51,7 @@ const Navbar = ({ handlePostDeal, isAuthenticated, handleLogout }) => {
           </div>
 
           <div className={styles.actionButtons}>
-            <Link to="/alerts" className={styles.actionButton}>
+            <Link to="/admin" className={styles.actionButton}>
               <BsBellFill className={styles.icon} style={{color: '#ff1a75'}} />
               <span>Deal Alerts</span>
             </Link>

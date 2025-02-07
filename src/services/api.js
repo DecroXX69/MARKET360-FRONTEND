@@ -78,12 +78,27 @@ export const signOut = async () => {
 // Product Services
 export const getProducts = async (filters) => {
     try {
+        console.log('Full Filters Object:', filters);
+
+        const queryParams = {
+            ...(filters.categories && filters.categories.length > 0 
+                ? { categories: filters.categories } 
+                : {}),
+            ...(filters.priceRange && filters.priceRange.min !== undefined 
+                ? { min: filters.priceRange.min } 
+                : {}),
+            ...(filters.priceRange && filters.priceRange.max !== undefined 
+                ? { max: filters.priceRange.max } 
+                : {})
+        };
+
+        console.log('Prepared Query Params:', queryParams);
+
         const response = await api.get('/products', { 
-        params: {
-          ...filters,
-          search: filters.search // Add search parameter
-        }
-      });
+            params: queryParams
+        });
+        
+        console.log('Filtered Products:', response.data);
         return response.data;
     } catch (error) {
         console.error('Get Products Error:', error.response?.data?.message || error.message);

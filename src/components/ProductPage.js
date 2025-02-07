@@ -31,41 +31,64 @@ const ProductPage = ({ showModal, setShowModal }) => {
 
   const [priceRange, setPriceRange] = useState(initialPriceRange);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [filters, setFilters] = useState({
-    priceRange: { min: 0, max: 1000 },
-    categories: []
+ // Replace the existing state initialization
+ const [filteredProducts, setFilteredProducts] = useState([]);
+const [filters, setFilters] = useState({
+  priceRange: { min: 0, max: 1000 },
+  categories: []
 });
+const [imagePreview, setImagePreview] = useState(null);
   // Set current user on mount
   useEffect(() => {
     setCurrentUser({ _id: 'user123', name: 'Test User' });
   }, []);
 
-  // Fetch products when filters change
+
+  
+  
+  // Replace the existing useEffect with this
   useEffect(() => {
     const fetchProducts = async () => {
-        try {
-            const queryFilters = {
-                minPrice: filters.priceRange.min,
-                maxPrice: filters.priceRange.max,
-                categories: filters.categories.length > 0 
-                    ? filters.categories 
-                    : undefined
-            };
-
-            const data = await getProducts(queryFilters);
-            setProducts(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            toast.error('Failed to fetch products');
-        }
+      try {
+        const data = await getProducts({});
+        setProducts(data);
+        setFilteredProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast.error('Failed to fetch products');
+      }
     };
 
     fetchProducts();
-}, [filters]);
+  }, []);
 
-const handleFilterUpdate = (newFilters) => {
+
+  useEffect(() => {
+    const applyFilters = () => {
+      let result = products;
+
+      // Category filter
+      if (filters.categories.length > 0) {
+        result = result.filter(product => 
+          filters.categories.includes(product.category)
+        );
+      }
+
+      // Price range filter
+      result = result.filter(product => 
+        product.salePrice >= filters.priceRange.min && 
+        product.salePrice <= filters.priceRange.max
+      );
+
+      setFilteredProducts(result);
+    };
+
+    applyFilters();
+  }, [filters, products]);
+
+  const handleFilterUpdate = (newFilters) => {
     setFilters(newFilters);
-};
+  };
 
   // Handle like/dislike functionality
   const handleLike = useCallback(async (productId) => {
@@ -227,9 +250,104 @@ const handleFilterUpdate = (newFilters) => {
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <h2>Add New Deal</h2>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-              {/* Form inputs remain the same as your new version */}
-              {/* ... */}
+            <form onSubmit={handleSubmit}>
+              <input
+                type="url"
+                placeholder="Deal URL"
+                value={newProduct.dealUrl}
+                onChange={(e) => setNewProduct({ ...newProduct, dealUrl: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Deal Title"
+                value={newProduct.title}
+                onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Sale Price"
+                value={newProduct.salePrice}
+                onChange={(e) => setNewProduct({ ...newProduct, salePrice: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="List Price"
+                value={newProduct.listPrice}
+                onChange={(e) => setNewProduct({ ...newProduct, listPrice: e.target.value })}
+                required
+              />
+              <textarea
+                placeholder="Description"
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                required
+              />
+              <select
+                value={newProduct.category}
+                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                required
+              >
+                <option value="">Select Category</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="Store (e.g., Amazon, Flipkart)"
+                value={newProduct.store}
+                onChange={(e) => setNewProduct({ ...newProduct, store: e.target.value })}
+                required
+              />
+                <div className={styles.imageUploadSection}>
+        {imagePreview ? (
+          <div className={styles.previewContainer}>
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className={styles.imagePreview} 
+            />
+            <button 
+              type="button" 
+              onClick={() => {
+                setImagePreview(null);
+                setNewProduct({ ...newProduct, image: null });
+              }}
+              className={styles.removeImage}
+            >
+              Remove Image
+            </button>
+          </div>
+        ) : (
+          <div className={styles.uploadContainer}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              id="dealImage"
+              className={styles.fileInput}
+            />
+            <label htmlFor="dealImage" className={styles.uploadLabel}>
+              📸 Add Deal Image
+            </label>
+          </div>
+        )}
+      </div>
+              <div className={styles.modalButtons}>
+                <button type="submit" className={styles.submitButton}>
+                  Submit New Deal
+                </button>
+                <button 
+                  type="button" 
+                  className={styles.cancelButton}
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -238,12 +356,13 @@ const handleFilterUpdate = (newFilters) => {
       <div className={styles.contentWrapper}>
         <div className={styles.filterSidebar}>
         <ProductFilter 
-                        categories={categories}
-                        onFilterUpdate={handleFilterUpdate}
-                    />
+            categories={categories}
+            onFilterUpdate={handleFilterUpdate}
+            initialFilters={filters}
+          />
         </div>
         <div className={styles.productsGrid}>
-          {Array.isArray(products) && products.map((product) => (
+          {filteredProducts.map((product) => (
             <div key={product._id} className={styles.productCard}>
               <div className={styles.productImage}>
                 {product.images && product.images.length > 0 ? (

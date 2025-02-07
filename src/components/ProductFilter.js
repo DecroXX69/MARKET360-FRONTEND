@@ -1,22 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './ProductFilter.module.css';
 
-const ProductFilter = ({ categories, onFilterUpdate }) => {
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
-    const [selectedCategories, setSelectedCategories] = useState([]);
+const ProductFilter = ({ categories, onFilterUpdate, onResetFilter, initialFilters }) => {
+    const [priceRange, setPriceRange] = useState({ 
+        min: initialFilters?.priceRange?.min || 0, 
+        max: initialFilters?.priceRange?.max || 50000 
+    });
+    const [selectedCategories, setSelectedCategories] = useState(
+        initialFilters?.categories || []
+    );
+
+    // Synchronize with initial filters prop
+    useEffect(() => {
+        if (initialFilters) {
+            setPriceRange({
+                min: initialFilters.priceRange.min,
+                max: initialFilters.priceRange.max
+            });
+            setSelectedCategories(initialFilters.categories);
+        }
+    }, [initialFilters]);
 
     const handlePriceChange = (e) => {
         const { name, value } = e.target;
-        const numValue = value === '' ? '' : Number(value);
+        const numValue = value === '' ? 0 : Number(value);
         
         setPriceRange(prev => {
             const newRange = { ...prev, [name]: numValue };
+            
             // Ensure min doesn't exceed max and max isn't less than min
             if (name === 'min' && numValue > prev.max) {
                 newRange.max = numValue;
             } else if (name === 'max' && numValue < prev.min) {
                 newRange.min = numValue;
             }
+            
             return newRange;
         });
     };
@@ -32,23 +50,21 @@ const ProductFilter = ({ categories, onFilterUpdate }) => {
 
     const handleApply = () => {
         const filters = {
-            priceRange: {
-                min: priceRange.min || 0,
-                max: priceRange.max || 1000
-            },
-            categories: selectedCategories
+          priceRange: {
+            min: priceRange.min || 0,
+            max: priceRange.max || 50000
+          },
+          categories: selectedCategories
         };
+        
         onFilterUpdate(filters);
-    };
+      };
 
-    const handleReset = () => {
-        setPriceRange({ min: 0, max: 1000 });
+      const handleReset = () => {
+        setPriceRange({ min: 0, max: 50000 });
         setSelectedCategories([]);
-        onFilterUpdate({
-            priceRange: { min: 0, max: 1000 },
-            categories: []
-        });
-    };
+        onResetFilter();
+      };
 
     return (
         <div className={styles.filterContainer}>
@@ -101,12 +117,12 @@ const ProductFilter = ({ categories, onFilterUpdate }) => {
                 >
                     Apply Filters
                 </button>
-                <button 
+                {/* <button 
                     className={styles.resetButton}
                     onClick={handleReset}
                 >
                     Reset Filters
-                </button>
+                </button> */}
             </div>
         </div>
     );

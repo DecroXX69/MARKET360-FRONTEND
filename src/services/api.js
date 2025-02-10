@@ -109,6 +109,8 @@ export const getProducts = async (filters) => {
 export const getProductById = async (id) => {
     try {
         const response = await api.get(`/products/${id}`);
+        // Add error logging to debug description issues
+        console.log('Product Data:', response.data);
         return response.data;
     } catch (error) {
         console.error('Get Product Error:', error.response?.data?.message || error.message);
@@ -116,36 +118,36 @@ export const getProductById = async (id) => {
     }
 };
 
-// Create Product with Image Upload Support
-// export const createProduct = async (productData, images) => {
-//     const formData = new FormData();
-//     formData.append('productData', JSON.stringify(productData));
 
-//     if (images) {
-//         images.forEach((image, index) => {
-//             formData.append(`images[${index}]`, image);
-//         });
-//     }
-
-//     try {
-//         const response = await api.post('/products', formData, {
-//             headers: { 'Content-Type': 'multipart/form-data' },
-//         });
-//         return response.data;
-//     } catch (error) {
-//         console.error('Create Product Error:', error.response?.data?.message || error.message);
-//         throw error;
-//     }
-// };
-export const createProduct = async (formData) => {
+export const createProduct = async (productData, images) => {
     try {
-        const response = await api.post('/products', formData);
+        const formData = new FormData();
+        
+        // Append product data
+        Object.keys(productData).forEach(key => {
+            formData.append(key, productData[key]);
+        });
+        
+        // Append images
+        if (images && images.length > 0) {
+            images.forEach((image, index) => {
+                formData.append(`images`, image);
+            });
+        }
+
+        const response = await api.post('/products', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        
         return response.data;
     } catch (error) {
         console.error('Create Product Error:', error.response?.data?.message || error.message);
         throw error;
     }
 };
+
 
 // Interaction Services
 export const toggleLike = async (productId) => {

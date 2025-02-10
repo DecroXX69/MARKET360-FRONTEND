@@ -15,9 +15,16 @@ const ProductDescription = ({ currentUser }) => {
     const fetchProduct = async () => {
       try {
         const data = await getProductById(id);
-        setProduct(data);
+        // Ensure images array exists
+        const productWithImages = {
+          ...data,
+          images: data.images || []
+        };
+        console.log('Fetched product data:', productWithImages);
+        setProduct(productWithImages);
         setLoading(false);
-      } catch {
+      } catch (err) {
+        console.error('Error fetching product:', err);
         setError(true);
         setLoading(false);
       }
@@ -55,6 +62,10 @@ const ProductDescription = ({ currentUser }) => {
     );
   }
 
+  if (!product) {
+    return <div className={styles.errorScreen}>Loading...</div>;
+  }
+
   return (
     <div className={styles.productContainer}>
       <header className={styles.header}>
@@ -70,7 +81,7 @@ const ProductDescription = ({ currentUser }) => {
       <main className={styles.mainContent}>
         <section className={styles.imageSection}>
           <div className={styles.productImageContainer}>
-            {product.images[selectedImageIndex] ? (
+            {product.images && product.images.length > 0 ? (
               <img
                 src={product.images[selectedImageIndex].url}
                 alt={product.title}
@@ -82,7 +93,7 @@ const ProductDescription = ({ currentUser }) => {
               </div>
             )}
             
-            {product.images.length > 1 && (
+            {product.images && product.images.length > 1 && (
               <div className={styles.gallery}>
                 {product.images.map((image, index) => (
                   <div 
@@ -92,7 +103,7 @@ const ProductDescription = ({ currentUser }) => {
                   >
                     <img 
                       src={image.url} 
-                      alt={product.title} 
+                      alt={`${product.title} - view ${index + 1}`} 
                       className={styles.galleryThumb}
                     />
                   </div>
@@ -105,26 +116,32 @@ const ProductDescription = ({ currentUser }) => {
         <section className={styles.detailsSection}>
           <div className={styles.priceInfo}>
             <div className={styles.priceBlock}>
-              <span className={styles.salePrice}>${product.salePrice}</span>
-              <span className={styles.originalPrice}>${product.listPrice}</span>
-              <span className={styles.discount}>
-                {discount}% OFF
-              </span>
+              <span className={styles.salePrice}>${product.salePrice?.toFixed(2) || '0.00'}</span>
+              {product.listPrice > 0 && (
+                <span className={styles.originalPrice}>${product.listPrice?.toFixed(2)}</span>
+              )}
+              {discount > 0 && (
+                <span className={styles.discount}>
+                  {discount}% OFF
+                </span>
+              )}
             </div>
 
             <div className={styles.storeInfo}>
-              <p>Available at <strong>{product.store}</strong></p>
-              <p>Category: <strong>{product.category}</strong></p>
+              <p>Available at <strong>{product.store || 'N/A'}</strong></p>
+              <p>Category: <strong>{product.category || 'N/A'}</strong></p>
             </div>
 
-            <a
-              href={product.dealUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.btnBuy}
-            >
-              Get Deal at {product.store}
-            </a>
+            {product.dealUrl && (
+              <a
+                href={product.dealUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.btnBuy}
+              >
+                Get Deal at {product.store}
+              </a>
+            )}
           </div>
 
           <div className={styles.descriptionSection}>

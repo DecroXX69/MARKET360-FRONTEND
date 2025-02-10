@@ -27,6 +27,7 @@
     "https-browserify": "^1.0.0",
     "lucide-react": "^0.474.0",
     "mui": "^0.0.1",
+    "multer": "^1.4.5-lts.1",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "querystring-es3": "^0.2.1",

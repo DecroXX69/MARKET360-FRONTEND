@@ -48,9 +48,9 @@ const ProductFilter = ({ categories, onFilterUpdate, initialFilters }) => {
   };
 
   const handleReset = () => {
-    setPriceRange({ min: 0, max: 1000 });
+    setPriceRange({ min: 0, max: 100000 });
     setSelectedCategories([]);
-    onFilterUpdate({ priceRange: { min: 0, max: 1000 }, categories: [] });
+    onFilterUpdate({ priceRange: { min: 0, max: 100000 }, categories: [] });
   };
 
   return (

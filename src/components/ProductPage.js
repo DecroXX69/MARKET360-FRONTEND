@@ -116,25 +116,49 @@ const ProductPage = ({ showModal, setShowModal }) => {
   };
 
   const handleImageChange = useCallback((e) => {
-    const files = Array.from(e.target.files);
-    const createPreviews = [];
+    const files = Array.from(e.target.files) || [];
+    const maxImages = 10;
+    const currentCount = newProduct.images.length;
+    let availableSlots = maxImages - currentCount;
+
+    if (availableSlots <= 0) {
+      toast.error('Maximum images limit (10) reached. Remove images to add more.');
+      return;
+    }
+
     const addImages = [];
-    
-    files.forEach(file => {
+    const createPreviews = [];
+
+    for (const file of files) {
+      if (availableSlots <= 0) break;
+
       if (file.size > 5e6) {
         toast.error('Image exceeds 5MB limit');
-        return;
+        continue;
       }
+
       addImages.push(file);
       createPreviews.push(URL.createObjectURL(file));
-    });
+      availableSlots--;
+    }
+
+    if (addImages.length === 0) {
+      toast.warn('No valid images selected.');
+      return;
+    }
 
     setNewProduct(prev => ({
       ...prev,
       images: [...prev.images, ...addImages]
     }));
+
     setImagesPreview(prev => [...prev, ...createPreviews]);
-  }, []);
+
+    const filesRejected = files.length - addImages.length;
+    if (filesRejected > 0) {
+      toast.warn(`${filesRejected} images were not added due to size or limit.`);
+    }
+  }, [newProduct.images]);
 
   const removeImage = (index) => {
     setNewProduct(prev => ({
@@ -245,28 +269,27 @@ const ProductPage = ({ showModal, setShowModal }) => {
                 required
               />
               <div className={styles.imageUploadSection}>
-                {imagesPreview.length > 0 ? (
-                  <div className={styles.imagesPreviewContainer}>
-                    {imagesPreview.map((preview, index) => (
-                      <div key={index} className={styles.imagePreviewItem}>
-                        <div className={styles.previewContainer}>
-                          <img 
-                            src={preview} 
-                            alt={`Preview ${index}`} 
-                            className={styles.imagePreview} 
-                          />
-                        </div>
-                        <button 
-                          type="button" 
-                          onClick={() => removeImage(index)}
-                          className={styles.removeImage}
-                        >
-                          Remove
-                        </button>
+                <div className={styles.imagesPreviewContainer}>
+                  {imagesPreview.map((preview, index) => (
+                    <div key={index} className={styles.imagePreviewItem}>
+                      <div className={styles.previewContainer}>
+                        <img 
+                          src={preview} 
+                          alt={`Preview ${index}`} 
+                          className={styles.imagePreview} 
+                        />
                       </div>
-                    ))}
-                  </div>
-                ) : (
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(index)}
+                        className={styles.removeImage}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {newProduct.images.length < 10 && (
                   <div className={styles.uploadContainer}>
                     <input
                       type="file"
@@ -277,7 +300,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
                       className={styles.fileInput}
                     />
                     <label htmlFor="dealImage" className={styles.uploadLabel}>
-                      📸 Add Deal Images
+                      🖼️ Add More Images
                     </label>
                   </div>
                 )}
@@ -369,4 +392,4 @@ const ProductPage = ({ showModal, setShowModal }) => {
   );
 };
 
-export default ProductPage;
+export default ProductPage; 

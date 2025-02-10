@@ -9,7 +9,7 @@ const initialPriceRange = { min: 0, max: 1000 };
 
 const ProductPage = ({ showModal, setShowModal }) => {
   const [products, setProducts] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser] = useState({ _id: 'user123', name: 'Test User' });
   const [newProduct, setNewProduct] = useState({
     dealUrl: '',
     title: '',
@@ -23,30 +23,18 @@ const ProductPage = ({ showModal, setShowModal }) => {
   const [imagesPreview, setImagesPreview] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
-
   const categories = [
     'Electronics', 'Fashion', 'Home & Garden', 'Books', 
     'Sports & Outdoors', 'Toys & Games', 'Beauty', 'Automotive'
   ];
 
-  const [priceRange, setPriceRange] = useState(initialPriceRange);
-  const [selectedCategories, setSelectedCategories] = useState([]);
- // Replace the existing state initialization
- const [filteredProducts, setFilteredProducts] = useState([]);
-const [filters, setFilters] = useState({
-  priceRange: { min: 0, max: 1000 },
-  categories: []
-});
-const [imagePreview, setImagePreview] = useState(null);
-  // Set current user on mount
-  useEffect(() => {
-    setCurrentUser({ _id: 'user123', name: 'Test User' });
-  }, []);
+  // State for filtering
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filters, setFilters] = useState({
+    priceRange: { min: 0, max: 100000 },
+    categories: []
+  });
 
-
-  
-  
-  // Replace the existing useEffect with this
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -54,35 +42,23 @@ const [imagePreview, setImagePreview] = useState(null);
         setProducts(data);
         setFilteredProducts(data);
       } catch (error) {
-        console.error('Error fetching products:', error);
         toast.error('Failed to fetch products');
       }
     };
-
     fetchProducts();
   }, []);
 
-
   useEffect(() => {
     const applyFilters = () => {
-      let result = products;
-
-      // Category filter
-      if (filters.categories.length > 0) {
-        result = result.filter(product => 
-          filters.categories.includes(product.category)
-        );
-      }
-
-      // Price range filter
-      result = result.filter(product => 
+      let result = products.filter((product) => 
         product.salePrice >= filters.priceRange.min && 
         product.salePrice <= filters.priceRange.max
       );
-
+      if (filters.categories.length > 0) {
+        result = result.filter(product => filters.categories.includes(product.category));
+      }
       setFilteredProducts(result);
     };
-
     applyFilters();
   }, [filters, products]);
 
@@ -90,105 +66,77 @@ const [imagePreview, setImagePreview] = useState(null);
     setFilters(newFilters);
   };
 
-  // Handle like/dislike functionality
   const handleLike = useCallback(async (productId) => {
     try {
-      if (!currentUser) {
-        toast.error('Please login to like products');
-        return;
-      }
-
-      const response = await toggleLike(productId, {
+      if (!currentUser) return toast.error('Please log in');
+      const { likeCount, dislikeCount } = await toggleLike(productId, {
         action: 'like',
         userId: currentUser._id
       });
-
-      setProducts(products.map(product => {
-        if (product._id === productId) {
-          return {
-            ...product,
-            likeCount: response.likeCount,
-            dislikeCount: response.dislikeCount
-          };
-        }
-        return product;
-      }));
+      setProducts(products.map(product => 
+        product._id === productId 
+          ? { ...product, likeCount, dislikeCount } 
+          : product
+      ));
     } catch (error) {
-      console.error('Error updating like:', error);
       toast.error('Failed to update like status');
     }
   }, [currentUser, products]);
 
   const handleDislike = useCallback(async (productId) => {
     try {
-      if (!currentUser) {
-        toast.error('Please login to dislike products');
-        return;
-      }
-
-      const response = await toggleDislike(productId, {
+      if (!currentUser) return toast.error('Please log in');
+      const { likeCount, dislikeCount } = await toggleDislike(productId, {
         action: 'dislike',
         userId: currentUser._id
       });
-
-      setProducts(products.map(product => {
-        if (product._id === productId) {
-          return {
-            ...product,
-            likeCount: response.likeCount,
-            dislikeCount: response.dislikeCount
-          };
-        }
-        return product;
-      }));
+      setProducts(products.map(product => 
+        product._id === productId 
+          ? { ...product, likeCount, dislikeCount } 
+          : product
+      ));
     } catch (error) {
-      console.error('Error updating dislike:', error);
       toast.error('Failed to update dislike status');
     }
   }, [currentUser, products]);
 
   const handleShareProduct = async (productId) => {
     const shareUrl = `${window.location.origin}/products/${productId}`;
-    
     try {
       await navigator.clipboard.writeText(shareUrl);
-      toast.success('Link copied to clipboard!');
     } catch (error) {
-      console.error('Error sharing product:', error);
-      // Fallback
       const tempInput = document.createElement('input');
       document.body.appendChild(tempInput);
       tempInput.value = shareUrl;
       tempInput.select();
       document.execCommand('copy');
       document.body.removeChild(tempInput);
-      toast.success('Link copied to clipboard!');
     }
+    toast.success('Link copied to clipboard');
   };
 
-  // Handle image upload
   const handleImageChange = useCallback((e) => {
     const files = Array.from(e.target.files);
-    const newImages = [];
-    const newPreviews = [];
-
-    for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size exceeds 5MB limit');
-        continue;
+    const createPreviews = [];
+    const addImages = [];
+    
+    files.forEach(file => {
+      if (file.size > 5e6) {
+        toast.error('Image exceeds 5MB limit');
+        return;
       }
-      newImages.push(file);
-      newPreviews.push(URL.createObjectURL(file));
-    }
+      addImages.push(file);
+      createPreviews.push(URL.createObjectURL(file));
+    });
 
     setNewProduct(prev => ({
       ...prev,
-      images: [...prev.images, ...newImages]
+      images: [...prev.images, ...addImages]
     }));
-    setImagesPreview(prev => [...prev, ...newPreviews]);
+    setImagesPreview(prev => [...prev, ...createPreviews]);
   }, []);
 
-  const removeImage = useCallback((index) => {
+  const removeImage = (index) => {
     setNewProduct(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
@@ -196,19 +144,16 @@ const [imagePreview, setImagePreview] = useState(null);
     
     URL.revokeObjectURL(imagesPreview[index]);
     setImagesPreview(prev => prev.filter((_, i) => i !== index));
-  }, [imagesPreview]);
+  };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setUploadError(null);
 
     const formData = new FormData();
     Object.keys(newProduct).forEach(key => {
-      if (key !== 'images') {
-        formData.append(key, newProduct[key]);
-      }
+      if (key === 'images') return;
+      formData.append(key, newProduct[key]);
     });
 
     newProduct.images.forEach(file => {
@@ -217,7 +162,7 @@ const [imagePreview, setImagePreview] = useState(null);
 
     try {
       await createProduct(formData);
-      toast.success('Product created successfully');
+      toast.success('Product added successfully');
       setShowModal(false);
       setNewProduct({
         dealUrl: '',
@@ -232,11 +177,9 @@ const [imagePreview, setImagePreview] = useState(null);
       setImagesPreview([]);
 
       // Refresh products
-      const data = await getProducts({});
-      setProducts(Array.isArray(data) ? data : []);
+      const updatedProducts = await getProducts({});
+      setProducts(updatedProducts);
     } catch (error) {
-      console.error('Error creating product:', error);
-      setUploadError(error.response?.data?.message || 'Failed to create product');
       toast.error(error.response?.data?.message || 'Failed to create product');
     } finally {
       setLoading(false);
@@ -245,7 +188,6 @@ const [imagePreview, setImagePreview] = useState(null);
 
   return (
     <div className={styles.container}>
-      {/* Modal Component */}
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -297,47 +239,51 @@ const [imagePreview, setImagePreview] = useState(null);
               </select>
               <input
                 type="text"
-                placeholder="Store (e.g., Amazon, Flipkart)"
+                placeholder="Store"
                 value={newProduct.store}
                 onChange={(e) => setNewProduct({ ...newProduct, store: e.target.value })}
                 required
               />
-                <div className={styles.imageUploadSection}>
-        {imagePreview ? (
-          <div className={styles.previewContainer}>
-            <img 
-              src={imagePreview} 
-              alt="Preview" 
-              className={styles.imagePreview} 
-            />
-            <button 
-              type="button" 
-              onClick={() => {
-                setImagePreview(null);
-                setNewProduct({ ...newProduct, image: null });
-              }}
-              className={styles.removeImage}
-            >
-              Remove Image
-            </button>
-          </div>
-        ) : (
-          <div className={styles.uploadContainer}>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              id="dealImage"
-              className={styles.fileInput}
-            />
-            <label htmlFor="dealImage" className={styles.uploadLabel}>
-              📸 Add Deal Image
-            </label>
-          </div>
-        )}
-      </div>
+              <div className={styles.imageUploadSection}>
+                {imagesPreview.length > 0 ? (
+                  <div className={styles.imagesPreviewContainer}>
+                    {imagesPreview.map((preview, index) => (
+                      <div key={index} className={styles.imagePreviewItem}>
+                        <div className={styles.previewContainer}>
+                          <img 
+                            src={preview} 
+                            alt={`Preview ${index}`} 
+                            className={styles.imagePreview} 
+                          />
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => removeImage(index)}
+                          className={styles.removeImage}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={styles.uploadContainer}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageChange}
+                      id="dealImage"
+                      className={styles.fileInput}
+                    />
+                    <label htmlFor="dealImage" className={styles.uploadLabel}>
+                      📸 Add Deal Images
+                    </label>
+                  </div>
+                )}
+              </div>
               <div className={styles.modalButtons}>
-                <button type="submit" className={styles.submitButton}>
+                <button type="submit" className={styles.submitButton} disabled={loading}>
                   Submit New Deal
                 </button>
                 <button 
@@ -355,7 +301,7 @@ const [imagePreview, setImagePreview] = useState(null);
 
       <div className={styles.contentWrapper}>
         <div className={styles.filterSidebar}>
-        <ProductFilter 
+          <ProductFilter 
             categories={categories}
             onFilterUpdate={handleFilterUpdate}
             initialFilters={filters}
@@ -365,7 +311,7 @@ const [imagePreview, setImagePreview] = useState(null);
           {filteredProducts.map((product) => (
             <div key={product._id} className={styles.productCard}>
               <div className={styles.productImage}>
-                {product.images && product.images.length > 0 ? (
+                {product.images && product.images[0] ? (
                   <img src={product.images[0].url} alt={product.title} />
                 ) : (
                   <img src="/placeholder-image.jpg" alt={product.title} />
@@ -377,7 +323,7 @@ const [imagePreview, setImagePreview] = useState(null);
                   <span className={styles.salePrice}>${product.salePrice}</span>
                   <span className={styles.listPrice}>${product.listPrice}</span>
                   <span className={styles.discount}>
-                    {Math.round(((product.listPrice - product.salePrice) / product.listPrice) * 100)}% OFF
+                    {Math.round(100 - (product.salePrice / product.listPrice) * 100)}% OFF
                   </span>
                 </div>
                 <p className={styles.store}>From: {product.store}</p>
@@ -396,24 +342,21 @@ const [imagePreview, setImagePreview] = useState(null);
                   >
                     View Deal
                   </a>
-                  <button 
-                    onClick={() => handleShareProduct(product._id)}
-                    className={styles.shareButton}
-                  >
+                  <button onClick={() => handleShareProduct(product._id)} className={styles.shareButton}>
                     🔗 Share
                   </button>
                   <div className={styles.ratingButtons}>
                     <button 
                       onClick={() => handleLike(product._id)}
-                      className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
+                      className={`${styles.likeButton} ${product.userLikes ? styles.active : ''}`}
                     >
-                      👍 {product.likeCount || 0}
+                      👍 {product.likeCount}
                     </button>
                     <button 
                       onClick={() => handleDislike(product._id)}
-                      className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
+                      className={`${styles.dislikeButton} ${product.userDislikes ? styles.active : ''}`}
                     >
-                      👎 {product.dislikeCount || 0}
+                      👎 {product.dislikeCount}
                     </button>
                   </div>
                 </div>

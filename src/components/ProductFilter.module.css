@@ -1,72 +1,104 @@
-.filterContainer {
-    background: #ffffff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .filterGroup {
-    margin-bottom: 1.5rem;
-  }
-  
-  .filterTitle {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.8rem;
-  }
-  
-  .priceInputs {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-  
-  .input {
-    flex: 1;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-  }
-  
-  .input:focus {
-    border-color: #3498db;
-    outline: none;
-  }
-  
-  .categoryList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-  
-  .categoryLabel {
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-    color: #34495e;
-  }
-  
-  .checkbox {
-    margin-right: 0.5rem;
-    accent-color: #3498db;
-  }
+.productFilter {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  .applyButton {
-    background-color: #007bff;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 1rem;
-    width: 100%;
-  }
-  
-  .applyButton:hover {
-    background-color: #0056b3;
-  }
+.filterSection {
+  margin-bottom: 16px;
+}
+
+.filterSection h2 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.rangeSlider {
+  margin: 12px 0;
+}
+
+.rangeTrack {
+  height: 6px;
+  background: #ddd;
+  border-radius: 3px;
+}
+
+.rangeThumb {
+  height: 16px;
+  width: 16px;
+  background: #007185;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.priceInputs {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.priceInput {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.categoryCheckbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.apply {
+  background-color: #007bff;
+  color: white;
+}
+
+.apply:hover {
+  background-color: #28a745;
+}
+
+.reset {
+  background-color: #ccc;
+  color: black;
+}
+
+.reset:hover {
+  background-color: #b3b3b3;
+}

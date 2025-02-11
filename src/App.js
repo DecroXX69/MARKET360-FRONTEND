@@ -26,7 +26,7 @@ import Monthly from "./AdminScenes/monthly/index";
 import Breakdown from "./AdminScenes/breakdown/index";
 import Admin from "./AdminScenes/admin/index";
 import Performance from "./AdminScenes/performance/index";
-
+import Wishlist from './components/Wishlist';
 
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
@@ -104,6 +104,7 @@ const App = () => {
             element={<ProductDescription currentUser={currentUser} />}
           />
           <Route path="/profile" element={<UserProfile  currentUser={currentUser} isAuthenticated={isAuthenticated} />} />
+          <Route path="/wishlist" element={<Wishlist  currentUser={currentUser}/>} />
         </Routes>
       </div>
      

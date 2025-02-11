@@ -9,6 +9,8 @@ import { HiTrendingUp } from 'react-icons/hi';
 import { getProducts } from '../services/api';
 import { useAuth } from '../context/AuthContext'; // Make sure to import useAuth
 import market from '../assets/market360.jpeg';
+import Wishlist from './Wishlist';
+import { BsHeartFill } from 'react-icons/bs';
 
 // Remove currentUser and handleLogout from props since we'll get them from useAuth
 const Navbar = ({ handlePostDeal }) => {
@@ -192,6 +194,11 @@ const Navbar = ({ handlePostDeal }) => {
         <IoAddCircle className={styles.icon} style={{color: '#2196f3'}} />
         <span>Post a Deal</span>
       </button>
+
+      <Link to="/Wishlist" className={styles.actionButton}>
+              <BsHeartFill className={styles.icon} style={{ color: '#e60023' }} />
+              <span>Wishlist</span>
+            </Link>
 
       {currentUser ? (
         <div className={styles.userSection}>

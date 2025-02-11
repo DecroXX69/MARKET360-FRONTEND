@@ -4,7 +4,7 @@ import styles from './ProductPage.module.css';
 import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
+import { getWishlist, addToWishlist, removeFromWishlist } from '../services/api';
 const initialPriceRange = { min: 0, max: 1000 };
 
 const ProductPage = ({ showModal, setShowModal }) => {
@@ -34,6 +34,45 @@ const ProductPage = ({ showModal, setShowModal }) => {
     priceRange: { min: 0, max: 100000 },
     categories: []
   });
+  const [wishlistedProducts, setWishlistedProducts] = useState(new Set());
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const wishlistItems = await getWishlist();
+        const wishlistProductIds = new Set(wishlistItems.map(product => product._id));
+        setWishlistedProducts(wishlistProductIds);
+      } catch (error) {
+        toast.error('Failed to fetch wishlist');
+      }
+    };
+
+    fetchWishlist();
+  }, []);
+
+  const handleWishlistToggle = async (productId) => {
+    try {
+      if (wishlistedProducts.has(productId)) {
+        await removeFromWishlist(productId);
+        setWishlistedProducts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+        toast.success('Product removed from wishlist');
+      } else {
+        await addToWishlist(productId);
+        setWishlistedProducts(prev => {
+          const newSet = new Set(prev);
+          newSet.add(productId);
+          return newSet;
+        });
+        toast.success('Product added to wishlist');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update wishlist');
+    }
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -333,6 +372,12 @@ const ProductPage = ({ showModal, setShowModal }) => {
                   >
                     View Details
                   </Link>
+                  <button
+    className={styles.heartButton}
+    onClick={() => handleWishlistToggle(product._id)}
+  >
+    {wishlistedProducts.has(product._id) ? '❤️' : '♡'}
+  </button>
                   <a
                     href={product.dealUrl}
                     target="_blank"

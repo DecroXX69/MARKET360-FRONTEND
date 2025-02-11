@@ -128,6 +128,32 @@ export const createProduct = async (formData) => {
         throw error;
     }
 };
+export const getWishlist = async () => {
+    try {
+      const response = await api.get('/wishlist');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch wishlist');
+    }
+  };
+
+export const addToWishlist = async (productId) => {
+    try {
+      const response = await api.post(`/wishlist/add`, { productId });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to add to wishlist');
+    }
+  };
+  
+  export const removeFromWishlist = async (productId) => {
+    try {
+      const response = await api.delete(`/wishlist/${productId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to remove from wishlist');
+    }
+  };
 
 // Interaction Services
 export const toggleLike = async (productId) => {

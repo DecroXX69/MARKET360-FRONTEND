@@ -245,28 +245,27 @@ const ProductPage = ({ showModal, setShowModal }) => {
                 required
               />
               <div className={styles.imageUploadSection}>
-                {imagesPreview.length > 0 ? (
-                  <div className={styles.imagesPreviewContainer}>
-                    {imagesPreview.map((preview, index) => (
-                      <div key={index} className={styles.imagePreviewItem}>
-                        <div className={styles.previewContainer}>
-                          <img 
-                            src={preview} 
-                            alt={`Preview ${index}`} 
-                            className={styles.imagePreview} 
-                          />
-                        </div>
-                        <button 
-                          type="button" 
-                          onClick={() => removeImage(index)}
-                          className={styles.removeImage}
-                        >
-                          Remove
-                        </button>
+                <div className={styles.imagesPreviewContainer}>
+                  {imagesPreview.map((preview, index) => (
+                    <div key={index} className={styles.imagePreviewItem}>
+                      <div className={styles.previewContainer}>
+                        <img 
+                          src={preview} 
+                          alt={`Preview ${index}`} 
+                          className={styles.imagePreview} 
+                        />
                       </div>
-                    ))}
-                  </div>
-                ) : (
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(index)}
+                        className={styles.removeImage}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {newProduct.images.length < 10 && (
                   <div className={styles.uploadContainer}>
                     <input
                       type="file"
@@ -277,7 +276,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
                       className={styles.fileInput}
                     />
                     <label htmlFor="dealImage" className={styles.uploadLabel}>
-                      📸 Add Deal Images
+                      🖼️ Add More Images
                     </label>
                   </div>
                 )}

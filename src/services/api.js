@@ -24,15 +24,16 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((response) => {
     return response;
 }, async (error) => {
-    // Only handle 401 errors if we're not already logging out and it's not a sign-in attempt
+    // Only handle 401 errors if we're not already logging out and it's not a sign-in or signout attempt
     if (error.response?.status === 401 && 
         !isLoggingOut && 
-        !error.config.url.includes('/auth/signin')) {
+        !error.config.url.includes('/auth/signin') &&
+        !error.config.url.includes('/auth/signout')) {
         
         isLoggingOut = true;
         try {
             await signOut();
-            window.location.reload();
+            window.location.href = '/auth'; // Redirect to auth page instead of reload
         } finally {
             isLoggingOut = false;
         }
@@ -46,7 +47,6 @@ export const signIn = async (email, password) => {
         const response = await api.post('/auth/signin', { email, password });
         return response.data;
     } catch (error) {
-        // Handle 401 explicitly for signin
         if (error.response?.status === 401) {
             throw new Error('Invalid email or password');
         }
@@ -64,14 +64,14 @@ export const signUp = async (email, password, username, confirmPassword) => {
 };
 
 export const signOut = async () => {
+    isLoggingOut = true; // Set flag before making the request
     try {
-        const response = await api.post('/auth/signout');
-        localStorage.removeItem('token');
-        return response.data;
+        await api.post('/auth/signout');
     } catch (error) {
-        // Just remove the token even if the API call fails
+        console.log('Signout API error:', error);
+    } finally {
         localStorage.removeItem('token');
-        return { message: 'Signed out locally' };
+        isLoggingOut = false; // Reset flag
     }
 };
 

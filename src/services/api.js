@@ -119,35 +119,15 @@ export const getProductById = async (id) => {
 };
 
 
-export const createProduct = async (productData, images) => {
+export const createProduct = async (formData) => {
     try {
-        const formData = new FormData();
-        
-        // Append product data
-        Object.keys(productData).forEach(key => {
-            formData.append(key, productData[key]);
-        });
-        
-        // Append images
-        if (images && images.length > 0) {
-            images.forEach((image, index) => {
-                formData.append(`images`, image);
-            });
-        }
-
-        const response = await api.post('/products', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        
+        const response = await api.post('/products', formData);
         return response.data;
     } catch (error) {
         console.error('Create Product Error:', error.response?.data?.message || error.message);
         throw error;
     }
 };
-
 
 // Interaction Services
 export const toggleLike = async (productId) => {

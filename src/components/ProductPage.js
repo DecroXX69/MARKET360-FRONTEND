@@ -8,6 +8,7 @@ import { getWishlist, addToWishlist, removeFromWishlist } from '../services/api'
 import { FaShare } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
+import { useLocation } from 'react-router-dom';
 
 const initialPriceRange = { min: 0, max: 1000 };
 
@@ -27,6 +28,9 @@ const ProductPage = ({ showModal, setShowModal }) => {
   const [imagesPreview, setImagesPreview] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchTermFromURL = searchParams.get('q') || '';
   const categories = [
     'Electronics', 'Fashion', 'Home & Garden', 'Books', 
     'Sports & Outdoors', 'Toys & Games', 'Beauty', 'Automotive'
@@ -36,7 +40,9 @@ const ProductPage = ({ showModal, setShowModal }) => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filters, setFilters] = useState({
     priceRange: { min: 0, max: 100000 },
-    categories: []
+    categories: [],
+    searchTerm: searchTermFromURL,
+
   });
   const [wishlistedProducts, setWishlistedProducts] = useState(new Set());
 
@@ -78,35 +84,51 @@ const ProductPage = ({ showModal, setShowModal }) => {
     }
   };
 
+// ProductPage.js
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const data = await getProducts({ search: searchTermFromURL });
+      setProducts(data);
+      setFilteredProducts(data);
+    } catch (error) {
+      toast.error('Failed to fetch products');
+    }
+  };
+  fetchProducts();
+}, [searchTermFromURL]);
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts({});
-        setProducts(data);
-        setFilteredProducts(data);
-      } catch (error) {
-        toast.error('Failed to fetch products');
-      }
-    };
-    fetchProducts();
-  }, []);
+    setFilters(prev => ({
+      ...prev,
+      searchTerm: searchTermFromURL,
+    }));
+  }, [searchTermFromURL]);
 
   useEffect(() => {
     const applyFilters = () => {
-      let result = products.filter((product) => 
-        product.salePrice >= filters.priceRange.min && 
-        product.salePrice <= filters.priceRange.max
+      let result = products.filter((product) =>
+        product.salePrice >= filters.priceRange.min &&
+        product.salePrice <= filters.priceRange.max &&
+        (filters.searchTerm === '' ||
+          (product.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+            product.description?.toLowerCase().includes(filters.searchTerm.toLowerCase())))
       );
+
       if (filters.categories.length > 0) {
         result = result.filter(product => filters.categories.includes(product.category));
       }
+
       setFilteredProducts(result);
     };
     applyFilters();
   }, [filters, products]);
 
   const handleFilterUpdate = (newFilters) => {
-    setFilters(newFilters);
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters,
+    }));
   };
 
   const handleLike = useCallback(async (productId) => {

@@ -70,9 +70,12 @@
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
+  position: relative;
+  justify-content: flex-end;
 }
 
 .productCard:hover {
+  
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -148,8 +151,7 @@
 
 /* Button Styles */
 .viewDetailsButton,
-.dealLink,
-.shareButton {
+.dealLink{
   padding: 0.5rem;
   border-radius: 4px;
   text-align: center;
@@ -161,6 +163,52 @@
   justify-content: center;
   gap: 0.25rem;
   color: black;
+}
+ 
+.shareButton {
+  position: absolute;
+  width: 40pxs;  
+  /* cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  color: black; */
+}
+
+/* .shareButton {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  cursor: pointer;
+  grid-column: 1 / -1;
+} */
+
+.shareButton:hover {
+  opacity: 0.8;
+}
+
+/* .shareButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  color: #333 ;
+} */
+
+.shareButton {
+  border: none;
+  top: 8px;
+  left: 8px;
+  background: #ffffff;
 }
 
 .viewDetailsButton {
@@ -175,13 +223,7 @@
   grid-column: 1 / -1;
 }
 
-.shareButton {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  cursor: pointer;
-  grid-column: 1 / -1;
-}
+
 
 /* Rating Buttons */
 .ratingButtons {
@@ -200,7 +242,7 @@
   border-radius: 4px;
   font-size: 0.9rem;
   transition: background-color 0.2s;
-  display: flex;
+    
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
@@ -392,7 +434,7 @@
 }
 
 
-.saveButton, .shareButton {
+.saveButton {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -410,11 +452,8 @@
   background: #ffe0e0;
 }
 
-.shareButton {
-  background: #e3f2fd;
-}
 
-.saveButton:hover, .shareButton:hover {
+.saveButton:hover {
   opacity: 0.8;
 }
 
@@ -445,16 +484,21 @@
 }
 
 .heartButton {
+  width: 30px;
   background: none;
   border: none;
   color: #e60023;
   font-size: 1.5em;
   cursor: pointer;
   transition: color 0.2s;
+  position: absolute; 
+  right: 10px;
+  top: 5px;
 }
 
 .heartButton.empty {
   color: #666;
+  background-color: #ffffff;
 }
 
 .heartButton:hover {

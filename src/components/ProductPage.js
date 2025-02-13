@@ -5,6 +5,10 @@ import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getWishlist, addToWishlist, removeFromWishlist } from '../services/api';
+import { FaShare } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
+import { CiHeart } from "react-icons/ci";
+
 const initialPriceRange = { min: 0, max: 1000 };
 
 const ProductPage = ({ showModal, setShowModal }) => {
@@ -349,12 +353,29 @@ const ProductPage = ({ showModal, setShowModal }) => {
           {filteredProducts.map((product) => (
             <div key={product._id} className={styles.productCard}>
               <div className={styles.productImage}>
+                {/* Heart Button */}
+                <button
+                   className={styles.heartButton}
+                   onClick={() => handleWishlistToggle(product._id)}>
+                   {wishlistedProducts.has(product._id) ? <CiHeart /> :<FaHeart /> }
+                   
+                </button>
+                {/* Heart Button End    '❤️' '♡'*/}
+                {/* Share button start */}
+                <button onClick={() => handleShareProduct(product._id)} className={styles.shareButton}>
+                <FaShare />
+
+                  </button>
+                  {/* share button end */}
+
                 {product.images && product.images[0] ? (
                   <img src={product.images[0].url} alt={product.title} />
                 ) : (
                   <img src="/placeholder-image.jpg" alt={product.title} />
                 )}
+                
               </div>
+              
               <div className={styles.productInfo}>
                 <h3>{product.title}</h3>
                 <div className={styles.priceInfo}>
@@ -372,12 +393,8 @@ const ProductPage = ({ showModal, setShowModal }) => {
                   >
                     View Details
                   </Link>
-                  <button
-    className={styles.heartButton}
-    onClick={() => handleWishlistToggle(product._id)}
-  >
-    {wishlistedProducts.has(product._id) ? '❤️' : '♡'}
-  </button>
+    {/* heart button place */}
+  {/* Share button place */}
                   <a
                     href={product.dealUrl}
                     target="_blank"
@@ -386,9 +403,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
                   >
                     View Deal
                   </a>
-                  <button onClick={() => handleShareProduct(product._id)} className={styles.shareButton}>
-                    🔗 Share
-                  </button>
+                  
                   <div className={styles.ratingButtons}>
                     <button 
                       onClick={() => handleLike(product._id)}

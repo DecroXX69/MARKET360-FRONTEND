@@ -42,7 +42,7 @@ const Wishlist = () => {
       {wishlist.length === 0 ? (
         <div className={styles.empty}>
           <img 
-            src="/empty-wishlist.png" 
+            src="https://imgs.search.brave.com/nY2dFQ_vV9k6Sqas_m2LizvNo-7pPgapA0LV9QZQ1J0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzEwLzM4LzI0LzQx/LzM2MF9GXzEwMzgy/NDQxMTRfb0x5QTJt/RUNNYVRWNkhQNXh1/UjlhekJXRUFHMEYx/bTIuanBn" 
             alt="Empty Wishlist" 
             className={styles.emptyImage}
           />

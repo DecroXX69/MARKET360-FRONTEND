@@ -75,6 +75,27 @@ export const signOut = async () => {
     }
 };
 
+export const getProductsApproved = async (filters) => {
+    try {
+      const queryParams = {
+        ...(filters.categories && { categories: filters.categories }),
+        ...(filters.priceRange && {
+          min: filters.priceRange.min,
+          max: filters.priceRange.max
+        }),
+        ...(filters.status && { status: filters.status }),
+        ...(filters.search && { search: filters.search }),
+     
+      };
+  
+      console.log('Prepared Query Params:', queryParams);
+      const response = await api.get('/products', { params: queryParams });
+      return response.data;
+    } catch (error) {
+      console.error('Get Products Error:', error.message);
+      throw error;
+    }
+  };
 // Product Services
 export const getProducts = async (filters) => {
     try {
@@ -94,17 +115,17 @@ export const getProducts = async (filters) => {
 
         console.log('Prepared Query Params:', queryParams);
 
-        const response = await api.get('/products', { 
+        const response = await api.get('/products/approved', { 
             params: queryParams
         });
         
         console.log('Filtered Products:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Get Products Error:', error.response?.data?.message || error.message);
-        throw error;
+      console.error('Get Products Error:', error.message);
+      throw error;
     }
-};
+  };
 
 export const getProductById = async (id) => {
     try {
@@ -121,13 +142,35 @@ export const getProductById = async (id) => {
 
 export const createProduct = async (formData) => {
     try {
-        const response = await api.post('/products', formData);
+        // Log the formData to debug
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+        
+        const response = await api.post('/products', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data', // Add this header
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Create Product Error:', error.response?.data?.message || error.message);
         throw error;
     }
 };
+
+// ... previous code ...
+
+// Interaction Services
+export const approveProduct = async (productId) => {
+    return await api.put(`/products/${productId}/update/approved`);
+  };
+  
+  export const rejectProduct = async (productId) => {
+    return await api.put(`/products/${productId}/update/rejected`);
+  };
+  
+  // ... other code ...
 export const getWishlist = async () => {
     try {
       const response = await api.get('/wishlist');

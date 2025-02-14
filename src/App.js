@@ -27,7 +27,7 @@ import Breakdown from "./AdminScenes/breakdown/index";
 import Admin from "./AdminScenes/admin/index";
 import Performance from "./AdminScenes/performance/index";
 import Wishlist from './components/Wishlist';
-
+import AdminPage from './components/AdminPage';
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -78,6 +78,7 @@ const App = () => {
       />
       <div className="app-container">
         <Routes>
+
         {/* <Route element={<Layout />}>
         <Route path="/admin" element={<Navigate to="Adminscenes/dashboard" replace />} />
               <Route path="/admin/Adminscenes/dashboard" element={<Dashboard />} />
@@ -96,6 +97,9 @@ const App = () => {
           setShowModal={setShowProductModal}
           isAuthenticated={isAuthenticated}/>} />
           <Route path="/auth" element={<AuthPage />} />
+         {/* Admin Dashboard */}
+         <Route path="/admin" element={<AdminPage />} />
+      {/* Add more admin routes here */}
           <Route path="/products" element={<ProductPage showModal={showProductModal} 
                   setShowModal={setShowProductModal}
                   isAuthenticated={isAuthenticated}/>} />
@@ -107,11 +111,14 @@ const App = () => {
           <Route path="/wishlist" element={<Wishlist  currentUser={currentUser}/>} />
         </Routes>
       </div>
-     
+      <div>
+  
+    </div>
       <Footer />
     </Router>
     </AuthProvider>
   );
 };
+
 
 export default App;

@@ -146,7 +146,7 @@ export const createProduct = async (formData) => {
         for (let pair of formData.entries()) {
             console.log(pair[0] + ': ' + pair[1]);
         }
-        
+
         const response = await api.post('/products', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data', // Add this header
@@ -231,5 +231,11 @@ export const updateProductRating = async (productId, { action, userId }) => {
         throw error;
     }
 };
+
+
+export const deleteProduct = async (productId) => {
+    return await api.delete(`/products/${productId}`);
+  };
+
 
 export default api;

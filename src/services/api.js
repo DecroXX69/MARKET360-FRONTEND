@@ -121,13 +121,23 @@ export const getProductById = async (id) => {
 
 export const createProduct = async (formData) => {
     try {
-        const response = await api.post('/products', formData);
+        // Log the formData to debug
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+        
+        const response = await api.post('/products', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data', // Add this header
+            },
+        });
         return response.data;
     } catch (error) {
         console.error('Create Product Error:', error.response?.data?.message || error.message);
         throw error;
     }
 };
+
 export const getWishlist = async () => {
     try {
       const response = await api.get('/wishlist');

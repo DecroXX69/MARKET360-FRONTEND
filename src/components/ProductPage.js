@@ -214,42 +214,46 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setUploadError(null);
 
     const formData = new FormData();
     Object.keys(newProduct).forEach(key => {
-      if (key === 'images') return;
-      formData.append(key, newProduct[key]);
+        if (key === 'images') return;
+        formData.append(key, newProduct[key]);
     });
 
+    // Append each image file individually
     newProduct.images.forEach(file => {
-      formData.append('images[]', file);
+        formData.append('images', file); // Changed from 'images[]' to 'images'
     });
 
     try {
-      await createProduct(formData);
-      toast.success('Product added successfully');
-      setShowModal(false);
-      setNewProduct({
-        dealUrl: '',
-        title: '',
-        salePrice: '',
-        listPrice: '',
-        description: '',
-        category: '',
-        store: '',
-        images: []
-      });
-      setImagesPreview([]);
+        await createProduct(formData);
+        toast.success('Product added successfully');
+        setShowModal(false);
+        // Reset form
+        setNewProduct({
+            dealUrl: '',
+            title: '',
+            salePrice: '',
+            listPrice: '',
+            description: '',
+            category: '',
+            store: '',
+            images: []
+        });
+        setImagesPreview([]);
 
-      // Refresh products
-      const updatedProducts = await getProducts({});
-      setProducts(updatedProducts);
+        // Refresh products
+        const updatedProducts = await getProducts({});
+        setProducts(updatedProducts);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create product');
+        setUploadError(error.message);
+        toast.error(error.message || 'Failed to create product');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className={styles.container}>
@@ -379,7 +383,7 @@ useEffect(() => {
                 <button
                    className={styles.heartButton}
                    onClick={() => handleWishlistToggle(product._id)}>
-                   {wishlistedProducts.has(product._id) ? <CiHeart /> :<FaHeart /> }
+                   {wishlistedProducts.has(product._id) ? <FaHeart /> :<CiHeart /> }
                    
                 </button>
                 {/* Heart Button End    '❤️' '♡'*/}

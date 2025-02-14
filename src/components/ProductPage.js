@@ -357,7 +357,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
                 <button
                    className={styles.heartButton}
                    onClick={() => handleWishlistToggle(product._id)}>
-                   {wishlistedProducts.has(product._id) ? <CiHeart /> :<FaHeart /> }
+                   {wishlistedProducts.has(product._id) ?   <CiHeart />: <FaHeart /> }
                    
                 </button>
                 {/* Heart Button End    '❤️' '♡'*/}

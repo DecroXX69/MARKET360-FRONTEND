@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getProducts, createProduct, toggleDislike, toggleLike } from '../services/api';
+import { getProducts, createProduct, toggleDislike, toggleLike, getProductsApproved } from '../services/api';
 import styles from './ProductPage.module.css';
 import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
@@ -88,7 +88,7 @@ const ProductPage = ({ showModal, setShowModal }) => {
 useEffect(() => {
   const fetchProducts = async () => {
     try {
-      const data = await getProducts({ search: searchTermFromURL });
+      const data = await getProductsApproved({ search: searchTermFromURL });
       setProducts(data);
       setFilteredProducts(data);
     } catch (error) {
@@ -245,7 +245,7 @@ useEffect(() => {
         setImagesPreview([]);
 
         // Refresh products
-        const updatedProducts = await getProducts({});
+        const updatedProducts = await getProductsApproved({});
         setProducts(updatedProducts);
     } catch (error) {
         setUploadError(error.message);

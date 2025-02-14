@@ -89,7 +89,7 @@ export const getProductsApproved = async (filters) => {
       };
   
       console.log('Prepared Query Params:', queryParams);
-      const response = await api.get('/products', { params: queryParams });
+      const response = await api.get('/products/approved', { params: queryParams });
       return response.data;
     } catch (error) {
       console.error('Get Products Error:', error.message);
@@ -99,33 +99,33 @@ export const getProductsApproved = async (filters) => {
 // Product Services
 export const getProducts = async (filters) => {
     try {
-        console.log('Full Filters Object:', filters);
-
-        const queryParams = {
-            ...(filters.categories && filters.categories.length > 0 
-                ? { categories: filters.categories } 
-                : {}),
-            ...(filters.priceRange && filters.priceRange.min !== undefined 
-                ? { min: filters.priceRange.min } 
-                : {}),
-            ...(filters.priceRange && filters.priceRange.max !== undefined 
-                ? { max: filters.priceRange.max } 
-                : {})
-        };
-
-        console.log('Prepared Query Params:', queryParams);
-
-        const response = await api.get('/products/approved', { 
-            params: queryParams
-        });
-        
-        console.log('Filtered Products:', response.data);
-        return response.data;
+      console.log('Full Filters Object:', filters);
+  
+      const queryParams = {
+        ...(filters.categories && filters.categories.length > 0 
+          ? { categories: filters.categories.join(',') } 
+          : {}),
+        ...(filters.priceRange && filters.priceRange.min !== undefined 
+          ? { min: filters.priceRange.min } 
+          : {}),
+        ...(filters.priceRange && filters.priceRange.max !== undefined 
+          ? { max: filters.priceRange.max } 
+          : {}),
+        ...(filters.status && { status: filters.status })
+      };
+  
+      console.log('Prepared Query Params:', queryParams);
+  
+      const response = await api.get('/products/pending', { params: queryParams });
+  
+      console.log('Filtered Products:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Get Products Error:', error.message);
       throw error;
     }
   };
+  
 
 export const getProductById = async (id) => {
     try {
@@ -234,8 +234,11 @@ export const updateProductRating = async (productId, { action, userId }) => {
 
 
 export const deleteProduct = async (productId) => {
-    return await api.delete(`/products/${productId}`);
-  };
+    const token = localStorage.getItem("token"); 
+    return await api.delete(`/products/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
 
 
 export default api;

@@ -94,7 +94,7 @@ export const getProducts = async (filters) => {
 
         console.log('Prepared Query Params:', queryParams);
 
-        const response = await api.get('/products', { 
+        const response = await api.get('/products/approved', { 
             params: queryParams
         });
         

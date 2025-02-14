@@ -6,7 +6,7 @@ import { IoAddCircle } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { HiTrendingUp } from 'react-icons/hi';
-import { getProducts } from '../services/api';
+import { getProducts, getProductsApproved } from '../services/api';
 import { useAuth } from '../context/AuthContext'; // Make sure to import useAuth
 import market from '../assets/market360.jpeg';
 import Wishlist from './Wishlist';
@@ -48,7 +48,7 @@ const Navbar = ({ handlePostDeal }) => {
 
   const handleSearch = async (value) => {
     try {
-      const products = await getProducts({ search: value });
+      const products = await getProductsApproved({ search: value });
       // Filter products based on search term
       const filteredProducts = products.filter(product => 
         product.title.toLowerCase().includes(value.toLowerCase()) ||

@@ -197,7 +197,10 @@ const handleSearchSubmit = () => {
               <BsHeartFill className={styles.icon} style={{ color: '#e60023' }} />
               <span>Wishlist</span>
             </Link>
-
+            <Link to="/Admin" className={styles.actionButton}>
+              <BsHeartFill className={styles.icon} style={{ color: '#e60023' }} />
+              <span>Admin</span>
+            </Link>
       {currentUser ? (
         <div className={styles.userSection}>
           <button 

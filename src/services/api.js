@@ -75,6 +75,27 @@ export const signOut = async () => {
     }
 };
 
+export const getProductsApproved = async (filters) => {
+    try {
+      const queryParams = {
+        ...(filters.categories && { categories: filters.categories }),
+        ...(filters.priceRange && {
+          min: filters.priceRange.min,
+          max: filters.priceRange.max
+        }),
+        ...(filters.status && { status: filters.status }),
+        ...(filters.search && { search: filters.search }),
+     
+      };
+  
+      console.log('Prepared Query Params:', queryParams);
+      const response = await api.get('/products', { params: queryParams });
+      return response.data;
+    } catch (error) {
+      console.error('Get Products Error:', error.message);
+      throw error;
+    }
+  };
 // Product Services
 export const getProducts = async (filters) => {
     try {
@@ -101,10 +122,10 @@ export const getProducts = async (filters) => {
         console.log('Filtered Products:', response.data);
         return response.data;
     } catch (error) {
-        console.error('Get Products Error:', error.response?.data?.message || error.message);
-        throw error;
+      console.error('Get Products Error:', error.message);
+      throw error;
     }
-};
+  };
 
 export const getProductById = async (id) => {
     try {
@@ -138,6 +159,18 @@ export const createProduct = async (formData) => {
     }
 };
 
+// ... previous code ...
+
+// Interaction Services
+export const approveProduct = async (productId) => {
+    return await api.put(`/products/${productId}/update/approved`);
+  };
+  
+  export const rejectProduct = async (productId) => {
+    return await api.put(`/products/${productId}/update/rejected`);
+  };
+  
+  // ... other code ...
 export const getWishlist = async () => {
     try {
       const response = await api.get('/wishlist');

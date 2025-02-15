@@ -126,6 +126,17 @@ export const getProducts = async (filters) => {
     }
   };
   
+  export const incrementProductView = async (productId) => {
+    try {
+        console.log('Attempting to increment view for product:', productId);
+        const response = await api.patch(`/products/${productId}/view`);
+        console.log('View increment response:', response);
+        return response;
+    } catch (error) {
+        console.error('Error incrementing view:', error.response || error);
+        throw error;
+    }
+};
 
 export const getProductById = async (id) => {
     try {

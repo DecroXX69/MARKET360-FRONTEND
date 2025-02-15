@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getProducts, createProduct, toggleDislike, toggleLike, getProductsApproved } from '../services/api';
+import { getProducts, createProduct, toggleDislike, toggleLike, getProductsApproved, incrementProductView } from '../services/api';
 import styles from './ProductPage.module.css';
 import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
@@ -210,6 +210,16 @@ useEffect(() => {
     URL.revokeObjectURL(imagesPreview[index]);
     setImagesPreview(prev => prev.filter((_, i) => i !== index));
   };
+  const handleViewDeal = useCallback(async (productId, dealUrl) => {
+    try {
+      window.open(dealUrl, '_blank'); // Open the deal page first
+      await incrementProductView(productId); // Then update the view count
+      toast.success('View count updated');
+    } catch (error) {
+      toast.error('Failed to track view');
+    }
+  }, []);
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -421,15 +431,23 @@ useEffect(() => {
                   </Link>
     {/* heart button place */}
   {/* Share button place */}
-                  <a
+                  {/* <a
                     href={product.dealUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.dealLink}
                   >
                     View Deal
-                  </a>
+                  </a> */}
                   
+                  <button
+  onClick={() => handleViewDeal(product._id, product.dealUrl)}
+  className={styles.dealLink}
+    target="_blank"
+                    rel="noopener noreferrer"
+>
+  View Deal
+</button>
                   <div className={styles.ratingButtons}>
                     <button 
                       onClick={() => handleLike(product._id)}

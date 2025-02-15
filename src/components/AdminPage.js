@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { approveProduct, rejectProduct, getProductsApproved, getProducts, deleteProduct } from '../services/api';
+import { approveProduct, rejectProduct, getProductsApproved, getProducts, deleteProduct, incrementProductView } from '../services/api';
 import toast from 'react-hot-toast';
 import styles from './AdminPage.module.css';
 
 const AdminPage = () => {
   const [pendingProducts, setPendingProducts] = useState([]);
   const [approvedProducts, setApprovedProducts] = useState([]);
+  const [analyticsProducts, setAnalyticsProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('pending');
@@ -13,6 +14,7 @@ const AdminPage = () => {
   useEffect(() => {
     fetchPendingProducts();
     fetchApprovedProducts();
+    fetchAnalyticsProducts();
   }, []);
 
   const fetchPendingProducts = async () => {
@@ -32,6 +34,15 @@ const AdminPage = () => {
       setApprovedProducts(products);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to load approved products');
+    }
+  };
+
+  const fetchAnalyticsProducts = async () => {
+    try {
+      const products = await getProducts({ sortBy: 'viewCount', order: 'desc', limit: 10 });
+      setAnalyticsProducts(products);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to load analytics data');
     }
   };
 
@@ -73,6 +84,7 @@ const AdminPage = () => {
         <tr>
           <th>Thumbnail</th>
           <th>Title</th>
+          <th>View Count</th>
           <th>Description</th>
           <th>Sale Price</th>
           <th>List Price</th>
@@ -91,9 +103,11 @@ const AdminPage = () => {
                 src={product.images?.[0]?.url || 'https://example.com/placeholder.png'}
                 alt={product.title || 'No Image'}
                 className={styles.productImage}
+                onClick={() => incrementProductView(product._id)}
               />
             </td>
             <td>{product.title}</td>
+            <td>{product.viewCount}</td>
             <td>{product.description.substring(0, 100)}...</td>
             <td>${product.salePrice}</td>
             <td>${product.listPrice}</td>
@@ -125,22 +139,6 @@ const AdminPage = () => {
     </table>
   );
 
-  const renderContent = () => {
-    if (loading) return <div className={styles.loading}>Loading products...</div>;
-    if (error) return <div className={styles.error}>{error}</div>;
-    
-    switch(activeTab) {
-      case 'pending':
-        return pendingProducts.length ? renderProductTable(pendingProducts, true) : <p>No pending products.</p>;
-      case 'approved':
-        return approvedProducts.length ? renderProductTable(approvedProducts, false) : <p>No approved products.</p>;
-      case 'analytics':
-        return <p>Analytics coming soon...</p>;
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Admin Dashboard</h1>
@@ -155,7 +153,29 @@ const AdminPage = () => {
           </button>
         ))}
       </div>
-      {renderContent()}
+      {activeTab === 'pending' ? renderProductTable(pendingProducts, true) : null}
+      {activeTab === 'approved' ? renderProductTable(approvedProducts, false) : null}
+      {activeTab === 'analytics' && (
+        <div>
+          <h2>Top Viewed Products</h2>
+          <table className={styles.analyticsTable}>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>View Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {analyticsProducts.map(product => (
+                <tr key={product._id}>
+                <td>{product.title}</td>
+                <td>{product.viewCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

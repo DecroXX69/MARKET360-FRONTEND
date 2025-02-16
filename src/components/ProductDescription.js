@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toggleDislike, toggleLike, getProductById } from '../services/api';
 import styles from './ProductDescription.module.css';
-import { getWishlist, addToWishlist, removeFromWishlist } from '../services/api';
+import { getWishlist, addToWishlist, removeFromWishlist, incrementProductView } from '../services/api';
 import toast from 'react-hot-toast';
 import { FaHeart } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
@@ -57,7 +57,17 @@ const ProductDescription = ({ currentUser }) => {
       toast.error('Failed to update dislike status');
     }
   }, [currentUser]);
-
+  
+  const handleViewDeal = useCallback(async (productId, dealUrl) => {
+    try {
+      window.open(dealUrl, '_blank'); // Open the deal page first
+      await incrementProductView(productId); // Then update the view count
+      toast.success('View count updated');
+    } catch (error) {
+      toast.error('Failed to track view');
+    }
+  }, []);
+  
   const handleShareProduct = async (productId) => {
     const shareUrl = `${window.location.origin}/products/${productId}`;
     try {
@@ -232,14 +242,22 @@ const ProductDescription = ({ currentUser }) => {
             </div>
 
             {product.dealUrl && (
-              <a
-                href={product.dealUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              // <a
+              //   href={product.dealUrl}
+              //   target="_blank"
+              //   rel="noopener noreferrer"
+              //   className={styles.btnBuy}
+              // >
+              //   Get Deal at {product.store}
+              // </a>
+                                <button
+                onClick={() => handleViewDeal(product._id, product.dealUrl)}
                 className={styles.btnBuy}
+                  target="_blank"
+                                  rel="noopener noreferrer"
               >
-                Get Deal at {product.store}
-              </a>
+                Get Deal at
+              </button>
             )}
             {/* Heart Button */}
             <button

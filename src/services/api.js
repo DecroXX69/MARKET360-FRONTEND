@@ -96,6 +96,17 @@ export const getProductsApproved = async (filters) => {
       throw error;
     }
   };
+
+  export const getUserProducts = async (createdBy) => {
+    try {
+      const response = await api.get(`/products/userProducts/${createdBy}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user products:', error.response ? error.response.data : error);
+      throw error;
+    }
+  };
+  
 // Product Services
 export const getProducts = async (filters) => {
     try {

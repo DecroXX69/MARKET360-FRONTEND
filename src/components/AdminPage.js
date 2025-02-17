@@ -212,7 +212,7 @@ const AdminPage = () => {
     <div className={styles.container}>
       <h1 className={styles.title}>Admin Dashboard</h1>
       <div className={styles.tabNav}>
-        {['pending', 'approved', 'analytics'].map(tab => (
+        {['pending', 'approved', 'Performance of'].map(tab => (
           <button 
             key={tab} 
             className={`${styles.tabButton} ${activeTab === tab ? styles.active : ''}`}
@@ -312,7 +312,7 @@ const AdminPage = () => {
       ) : null}
       {activeTab === 'pending' ? renderProductTable(pendingProducts, true) : null}
       {activeTab === 'approved' ? renderProductTable(approvedProducts, false) : null}
-      {activeTab === 'analytics' && (
+      {activeTab === 'Performance of' && (
         <div className={styles.analyticsSection}>
           <h2>Top Viewed Products</h2>
           <table className={styles.analyticsTable}>

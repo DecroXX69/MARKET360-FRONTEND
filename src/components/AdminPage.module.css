@@ -320,13 +320,80 @@
 }
 
 /* Enhanced Analytics Section */
+/* Analytics Section Styles */
 .analyticsSection {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: white;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
 }
 
+.analyticsSection h2 {
+  font-size: 1.75rem;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.analyticsTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 2rem;
+}
+
+.analyticsTable th {
+  background: linear-gradient(to bottom, var(--bg-gradient-start), var(--bg-gradient-end));
+  color: #334155;
+  font-weight: 700;
+  text-align: left;
+  padding: 1.25rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.analyticsTable td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.analyticsTable tr:hover td {
+  background-color: #f8fafc;
+}
+
+.analyticsTable th:nth-child(1),
+.analyticsTable td:nth-child(1) {
+  text-align: right;
+}
+
+.analyticsTable td:nth-child(3) {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1280px) {
+  .analyticsTable {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .analyticsSection h2 {
+    font-size: 1.5rem;
+  }
+
+  .analyticsTable th,
+  .analyticsTable td {
+    padding: 1rem;
+  }
+}
 /* Improved Responsive Design */
 @media (max-width: 1280px) {
   .container {
@@ -367,6 +434,119 @@
   .analyticsSection {
     grid-template-columns: 1fr;
   }
+}
+
+.actionsCell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to right, #5adc26, #00c200);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.editButton:hover {
+  background: linear-gradient(to right, #5adc26, #00c200);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}
+
+.editFormOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(10px);
+}
+
+.editFormContainer {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  max-width: 600px;
+  width: 90%;
+}
+
+.editFormTitle {
+  font-size: 2rem;
+  color: #1e293b;
+  margin-bottom: 2rem;
+  font-weight: 700;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.saveButton,
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.saveButton {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.saveButton:hover {
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+}
+
+.cancelButton {
+  background: transparent;
+  border: 1px solid #2563eb;
+  color: #2563eb;
+}
+
+.cancelButton:hover {
+  background-color: #e5f9fd;
 }
 
 /* Print Styles */

@@ -242,7 +242,17 @@ export const updateProductRating = async (productId, { action, userId }) => {
         throw error;
     }
 };
+// services/api.js
 
+export const updateProduct = async (productId, productDetails) => {
+  try {
+      const response = await api.put(`/products/${productId}`, productDetails);
+      return response.data;
+  } catch (error) {
+      console.error('Update Product Error:', error.response?.data?.message || error.message);
+      throw error;
+  }
+};
 
 export const deleteProduct = async (productId) => {
     const token = localStorage.getItem("token"); 

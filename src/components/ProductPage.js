@@ -1,14 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getProducts, createProduct, updateProductRating, toggleDislike, toggleLike } from '../services/api';
+import { getProducts, createProduct, toggleDislike, toggleLike, getProductsApproved, incrementProductView } from '../services/api';
 import styles from './ProductPage.module.css';
 import ProductFilter from './ProductFilter';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { getWishlist, addToWishlist, removeFromWishlist } from '../services/api';
+import { FaShare } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
+import { CiHeart } from "react-icons/ci";
+import { useLocation } from 'react-router-dom';
+
 const initialPriceRange = { min: 0, max: 1000 };
 
 const ProductPage = ({ showModal, setShowModal }) => {
   const [products, setProducts] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser] = useState({ _id: 'user123', name: 'Test User' });
   const [newProduct, setNewProduct] = useState({
     dealUrl: '',
     title: '',
@@ -17,193 +23,248 @@ const ProductPage = ({ showModal, setShowModal }) => {
     description: '',
     category: '',
     store: '',
-    image: null // Add this for image file
+    images: []
   });
-
+  const [imagesPreview, setImagesPreview] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchTermFromURL = searchParams.get('q') || '';
   const categories = [
     'Electronics', 'Fashion', 'Home & Garden', 'Books', 
     'Sports & Outdoors', 'Toys & Games', 'Beauty', 'Automotive'
   ];
 
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [imagePreview, setImagePreview] = useState(null);
+  // State for filtering
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filters, setFilters] = useState({
+    priceRange: { min: 0, max: 100000 },
+    categories: [],
+    searchTerm: searchTermFromURL,
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setNewProduct({ ...newProduct, image: file });
-      setImagePreview(URL.createObjectURL(file));
+  });
+  const [wishlistedProducts, setWishlistedProducts] = useState(new Set());
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const wishlistItems = await getWishlist();
+        const wishlistProductIds = new Set(wishlistItems.map(product => product._id));
+        setWishlistedProducts(wishlistProductIds);
+      } catch (error) {
+        toast.error('Failed to fetch wishlist');
+      }
+    };
+
+    fetchWishlist();
+  }, []);
+
+  const handleWishlistToggle = async (productId) => {
+    try {
+      if (wishlistedProducts.has(productId)) {
+        await removeFromWishlist(productId);
+        setWishlistedProducts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+        toast.success('Product removed from wishlist');
+      } else {
+        await addToWishlist(productId);
+        setWishlistedProducts(prev => {
+          const newSet = new Set(prev);
+          newSet.add(productId);
+          return newSet;
+        });
+        toast.success('Product added to wishlist');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update wishlist');
     }
   };
 
-  // Memoize fetchProducts function
-  const fetchProducts = useCallback(async (filters) => {
+// ProductPage.js
+useEffect(() => {
+  const fetchProducts = async () => {
     try {
-      const queryFilters = {
-        categories: filters.selectedCategories?.length > 0 ? 
-          filters.selectedCategories.join(',') : undefined,
-        min: undefined,
-        max: undefined,
-      };
+      const data = await getProductsApproved({ search: searchTermFromURL });
+      setProducts(data);
+      setFilteredProducts(data);
+    } catch (error) {
+      toast.error('Failed to fetch products');
+    }
+  };
+  fetchProducts();
+}, [searchTermFromURL]);
 
-      const { min, max } = filters.priceRange;
-      if (min !== initialPriceRange.min || max !== initialPriceRange.max) {
-        queryFilters.min = min;
-        queryFilters.max = max;
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      searchTerm: searchTermFromURL,
+    }));
+  }, [searchTermFromURL]);
+
+  useEffect(() => {
+    const applyFilters = () => {
+      let result = products.filter((product) =>
+        product.salePrice >= filters.priceRange.min &&
+        product.salePrice <= filters.priceRange.max &&
+        (filters.searchTerm === '' ||
+          (product.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+            product.description?.toLowerCase().includes(filters.searchTerm.toLowerCase())))
+      );
+
+      if (filters.categories.length > 0) {
+        result = result.filter(product => filters.categories.includes(product.category));
       }
 
-      const data = await getProducts(queryFilters);
-      setProducts(data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  }, []);
+      setFilteredProducts(result);
+    };
+    applyFilters();
+  }, [filters, products]);
 
-  // Set currentUser on mount
-  useEffect(() => {
-    setCurrentUser({ _id: 'user123', name: 'Test User' });
-  }, []);
-
-  // Fetch products when filters or fetchProducts change
-  useEffect(() => {
-    fetchProducts({ priceRange, selectedCategories });
-  }, [priceRange, selectedCategories, fetchProducts]);
-
-  const handleFilterUpdate = useCallback((newPriceRange, newSelectedCategories) => {
-    setPriceRange(newPriceRange);
-    setSelectedCategories(newSelectedCategories);
-    fetchProducts({ priceRange: newPriceRange, selectedCategories: newSelectedCategories });
-  }, [fetchProducts]);
+  const handleFilterUpdate = (newFilters) => {
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters,
+    }));
+  };
 
   const handleLike = useCallback(async (productId) => {
     try {
-      if (!currentUser) {
-          alert('Please login to like products');
-          return;
-      }
-
-      console.log('Sending like request for product:', productId);
-
-      const response = await toggleLike(productId, {
-          action: 'like',
-          userId: currentUser._id
+      if (!currentUser) return toast.error('Please log in');
+      const { likeCount, dislikeCount } = await toggleLike(productId, {
+        action: 'like',
+        userId: currentUser._id
       });
-
-      console.log('Received response:', response);
-
-      setProducts(products.map(product => {
-          if (product._id === productId) {
-              return {
-                ...product,
-                likeCount: response.likeCount, // Update likeCount
-                dislikeCount: response.dislikeCount // Update dislikeCount
-            };
-          }
-          return product;
-      }));
-  } catch (error) {
-      console.error('Error updating like:', error);
-      alert('Failed to update like status. Please try again.');
-  }
+      setProducts(products.map(product => 
+        product._id === productId 
+          ? { ...product, likeCount, dislikeCount } 
+          : product
+      ));
+    } catch (error) {
+      toast.error('Failed to update like status');
+    }
   }, [currentUser, products]);
 
   const handleDislike = useCallback(async (productId) => {
     try {
-      if (!currentUser) {
-        alert('Please login to dislike products');
-        return;
-      }
-
-      console.log('Sending Dislike request for product:', productId);
-
-      const response = await toggleDislike(productId, {
+      if (!currentUser) return toast.error('Please log in');
+      const { likeCount, dislikeCount } = await toggleDislike(productId, {
         action: 'dislike',
         userId: currentUser._id
       });
-
-      console.log('Received response:', response);
-
-    setProducts(products.map(product => {
-      if (product._id === productId) {
-          return {
-            ...product,
-            likeCount: response.likeCount, // Update likeCount
-            dislikeCount: response.dislikeCount // Update dislikeCount
-        };
-      }
-      return product;
-  }));
-} catch (error) {
-  console.error('Error updating dislike:', error);
-  alert('Failed to update dislike status. Please try again.');
-}
+      setProducts(products.map(product => 
+        product._id === productId 
+          ? { ...product, likeCount, dislikeCount } 
+          : product
+      ));
+    } catch (error) {
+      toast.error('Failed to update dislike status');
+    }
   }, [currentUser, products]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await createProduct(newProduct);
-      setShowModal(false);
-      setNewProduct({
-        dealUrl: '',
-        title: '',
-        salePrice: '',
-        listPrice: '',
-        description: '',
-        category: '',
-        store: ''
-      });
-      await fetchProducts({ priceRange, selectedCategories });
-    } catch (error) {
-      console.error('Error creating product:', error);
-    }
-  };
-
-
-
-  const handleSaveProduct = async (productId) => {
-    try {
-      // Frontend-only for now
-      setProducts(products.map(product => {
-        if (product._id === productId) {
-          return {
-            ...product,
-            isSaved: !product.isSaved
-          };
-        }
-        return product;
-      }));
-      
-      // Show feedback
-      toast.success(
-        products.find(p => p._id === productId).isSaved 
-          ? 'Removed from saved deals' 
-          : 'Added to saved deals'
-      );
-    } catch (error) {
-      console.error('Error saving product:', error);
-    }
-  };
-  
   const handleShareProduct = async (productId) => {
     const shareUrl = `${window.location.origin}/products/${productId}`;
-    
     try {
       await navigator.clipboard.writeText(shareUrl);
-      toast.success('Link copied to clipboard!');
     } catch (error) {
-      console.error('Error sharing product:', error);
-      // Fallback
       const tempInput = document.createElement('input');
       document.body.appendChild(tempInput);
       tempInput.value = shareUrl;
       tempInput.select();
       document.execCommand('copy');
       document.body.removeChild(tempInput);
-      toast.success('Link copied to clipboard!');
     }
+    toast.success('Link copied to clipboard');
   };
+
+  const handleImageChange = useCallback((e) => {
+    const files = Array.from(e.target.files);
+    const createPreviews = [];
+    const addImages = [];
+    
+    files.forEach(file => {
+      if (file.size > 5e6) {
+        toast.error('Image exceeds 5MB limit');
+        return;
+      }
+      addImages.push(file);
+      createPreviews.push(URL.createObjectURL(file));
+    });
+
+    setNewProduct(prev => ({
+      ...prev,
+      images: [...prev.images, ...addImages]
+    }));
+    setImagesPreview(prev => [...prev, ...createPreviews]);
+  }, []);
+
+  const removeImage = (index) => {
+    setNewProduct(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+    
+    URL.revokeObjectURL(imagesPreview[index]);
+    setImagesPreview(prev => prev.filter((_, i) => i !== index));
+  };
+  const handleViewDeal = useCallback(async (productId, dealUrl) => {
+    try {
+      window.open(dealUrl, '_blank'); // Open the deal page first
+      await incrementProductView(productId); // Then update the view count
+      toast.success('View count updated');
+    } catch (error) {
+      toast.error('Failed to track view');
+    }
+  }, []);
+  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setUploadError(null);
+
+    const formData = new FormData();
+    Object.keys(newProduct).forEach(key => {
+        if (key === 'images') return;
+        formData.append(key, newProduct[key]);
+    });
+
+    // Append each image file individually
+    newProduct.images.forEach(file => {
+        formData.append('images', file); // Changed from 'images[]' to 'images'
+    });
+
+    try {
+        await createProduct(formData);
+        toast.success('Product added successfully');
+        setShowModal(false);
+        // Reset form
+        setNewProduct({
+            dealUrl: '',
+            title: '',
+            salePrice: '',
+            listPrice: '',
+            description: '',
+            category: '',
+            store: '',
+            images: []
+        });
+        setImagesPreview([]);
+
+        // Refresh products
+        const updatedProducts = await getProductsApproved({});
+        setProducts(updatedProducts);
+    } catch (error) {
+        setUploadError(error.message);
+        toast.error(error.message || 'Failed to create product');
+    } finally {
+        setLoading(false);
+    }
+};
+
   return (
     <div className={styles.container}>
       {showModal && (
@@ -257,47 +318,50 @@ const ProductPage = ({ showModal, setShowModal }) => {
               </select>
               <input
                 type="text"
-                placeholder="Store (e.g., Amazon, Flipkart)"
+                placeholder="Store"
                 value={newProduct.store}
                 onChange={(e) => setNewProduct({ ...newProduct, store: e.target.value })}
                 required
               />
-                <div className={styles.imageUploadSection}>
-        {imagePreview ? (
-          <div className={styles.previewContainer}>
-            <img 
-              src={imagePreview} 
-              alt="Preview" 
-              className={styles.imagePreview} 
-            />
-            <button 
-              type="button" 
-              onClick={() => {
-                setImagePreview(null);
-                setNewProduct({ ...newProduct, image: null });
-              }}
-              className={styles.removeImage}
-            >
-              Remove Image
-            </button>
-          </div>
-        ) : (
-          <div className={styles.uploadContainer}>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              id="dealImage"
-              className={styles.fileInput}
-            />
-            <label htmlFor="dealImage" className={styles.uploadLabel}>
-              📸 Add Deal Image
-            </label>
-          </div>
-        )}
-      </div>
+              <div className={styles.imageUploadSection}>
+                <div className={styles.imagesPreviewContainer}>
+                  {imagesPreview.map((preview, index) => (
+                    <div key={index} className={styles.imagePreviewItem}>
+                      <div className={styles.previewContainer}>
+                        <img 
+                          src={preview} 
+                          alt={`Preview ${index}`} 
+                          className={styles.imagePreview} 
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => removeImage(index)}
+                        className={styles.removeImage}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {newProduct.images.length < 10 && (
+                  <div className={styles.uploadContainer}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageChange}
+                      id="dealImage"
+                      className={styles.fileInput}
+                    />
+                    <label htmlFor="dealImage" className={styles.uploadLabel}>
+                      🖼️ Add More Images
+                    </label>
+                  </div>
+                )}
+              </div>
               <div className={styles.modalButtons}>
-                <button type="submit" className={styles.submitButton}>
+                <button type="submit" className={styles.submitButton} disabled={loading}>
                   Submit New Deal
                 </button>
                 <button 
@@ -312,78 +376,97 @@ const ProductPage = ({ showModal, setShowModal }) => {
           </div>
         </div>
       )}
+
       <div className={styles.contentWrapper}>
         <div className={styles.filterSidebar}>
           <ProductFilter 
             categories={categories}
             onFilterUpdate={handleFilterUpdate}
+            initialFilters={filters}
           />
         </div>
-      </div>
-      <div className={styles.productsGrid}>
-        {products.map((product) => (
-          <div key={product._id} className={styles.productCard}>
-            <div className={styles.productImage}>
-              <img src="https://sm.mashable.com/t/mashable_in/article/i/ive-review/ive-reviewed-over-59-laptops-and-this-is-the-best-windows-la_rzds.1248.jpg" alt={product.title} />
-            </div>
-            <div className={styles.productInfo}>
-              <h3>{product.title}</h3>
-              <div className={styles.priceInfo}>
-                <span className={styles.salePrice}>${product.salePrice}</span>
-                <span className={styles.listPrice}>${product.listPrice}</span>
-                <span className={styles.discount}>
-                  {Math.round(((product.listPrice - product.salePrice) / product.listPrice) * 100)}% OFF
-                </span>
+        <div className={styles.productsGrid}>
+          {filteredProducts.map((product) => (
+            <div key={product._id} className={styles.productCard}>
+              <div className={styles.productImage}>
+                {/* Heart Button */}
+                <button
+                   className={styles.heartButton}
+                   onClick={() => handleWishlistToggle(product._id)}>
+                   {wishlistedProducts.has(product._id) ? <FaHeart /> :<CiHeart /> }
+                   
+                </button>
+                {/* Heart Button End    '❤️' '♡'*/}
+                {/* Share button start */}
+                <button onClick={() => handleShareProduct(product._id)} className={styles.shareButton}>
+                <FaShare />
+
+                  </button>
+                  {/* share button end */}
+
+                {product.images && product.images[0] ? (
+                  <img src={product.images[0].url} alt={product.title} />
+                ) : (
+                  <img src="/placeholder-image.jpg" alt={product.title} />
+                )}
+                
               </div>
-              <p className={styles.store}>From: {product.store}</p>
-              <div className={styles.actions}>
-                <Link
-                  to={`/products/${product._id}`}
-                  className={styles.viewDetailsButton}
-                >
-                  View Details
-                </Link>
-                {/* Add Save button */}
-  <button 
-    onClick={() => handleSaveProduct(product._id)}
-    className={`${styles.saveButton} ${product.isSaved ? styles.saved : ''}`}
-  >
-    {product.isSaved ? '❤️ Saved' : '🤍 Save'}
-  </button>
-  
-  {/* Add Share button */}
-  <button 
-    onClick={() => handleShareProduct(product._id)}
-    className={styles.shareButton}
-  >
-    🔗 Share
-  </button>
-                <a
-                  href={product.dealUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.dealLink}
-                >
-                  View Deal
-                </a>
-                <div className={styles.ratingButtons}>
-                  <button 
-                    onClick={() => handleLike(product._id)} 
-                    className={`${styles.likeButton} ${product.likes?.includes(currentUser?._id) ? styles.active : ''}`}
+              
+              <div className={styles.productInfo}>
+                <h3>{product.title}</h3>
+                <div className={styles.priceInfo}>
+                  <span className={styles.salePrice}>${product.salePrice}</span>
+                  <span className={styles.listPrice}>${product.listPrice}</span>
+                  <span className={styles.discount}>
+                    {Math.round(100 - (product.salePrice / product.listPrice) * 100)}% OFF
+                  </span>
+                </div>
+                <p className={styles.store}>From: {product.store}</p>
+                <div className={styles.actions}>
+                  <Link
+                    to={`/products/${product._id}`}
+                    className={styles.viewDetailsButton}
                   >
-                    👍 {product.likeCount|| 0}
-                  </button>
-                  <button 
-                    onClick={() => handleDislike(product._id)}
-                    className={`${styles.dislikeButton} ${product.dislikes?.includes(currentUser?._id) ? styles.active : ''}`}
+                    View Details
+                  </Link>
+    {/* heart button place */}
+  {/* Share button place */}
+                  {/* <a
+                    href={product.dealUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.dealLink}
                   >
-                    👎 {product.dislikeCount|| 0}
-                  </button>
+                    View Deal
+                  </a> */}
+                  
+                  <button
+  onClick={() => handleViewDeal(product._id, product.dealUrl)}
+  className={styles.dealLink}
+    target="_blank"
+                    rel="noopener noreferrer"
+>
+  View Deal
+</button>
+                  <div className={styles.ratingButtons}>
+                    <button 
+                      onClick={() => handleLike(product._id)}
+                      className={`${styles.likeButton} ${product.userLikes ? styles.active : ''}`}
+                    >
+                      👍 {product.likeCount}
+                    </button>
+                    <button 
+                      onClick={() => handleDislike(product._id)}
+                      className={`${styles.dislikeButton} ${product.userDislikes ? styles.active : ''}`}
+                    >
+                      👎 {product.dislikeCount}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

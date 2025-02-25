@@ -6,9 +6,12 @@ import { IoAddCircle } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
 import { IoIosArrowDown } from 'react-icons/io';
 import { HiTrendingUp } from 'react-icons/hi';
-import { getProducts } from '../services/api';
+import { getProducts, getProductsApproved } from '../services/api';
 import { useAuth } from '../context/AuthContext'; // Make sure to import useAuth
 import market from '../assets/market360.jpeg';
+import Wishlist from './Wishlist';
+import { BsHeartFill } from 'react-icons/bs';
+import { useLocation } from 'react-router-dom';
 
 // Remove currentUser and handleLogout from props since we'll get them from useAuth
 const Navbar = ({ handlePostDeal }) => {
@@ -16,6 +19,7 @@ const Navbar = ({ handlePostDeal }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { currentUser, logout } = useAuth();
+  const location = useLocation();
   const [searchHistory, setSearchHistory] = useState(() => {
     const savedHistory = localStorage.getItem('searchHistory');
     return savedHistory ? JSON.parse(savedHistory) : [];
@@ -44,7 +48,7 @@ const Navbar = ({ handlePostDeal }) => {
 
   const handleSearch = async (value) => {
     try {
-      const products = await getProducts({ search: value });
+      const products = await getProductsApproved({ search: value });
       // Filter products based on search term
       const filteredProducts = products.filter(product => 
         product.title.toLowerCase().includes(value.toLowerCase()) ||
@@ -62,23 +66,19 @@ const Navbar = ({ handlePostDeal }) => {
     setSearchTerm(value);
     setShowSearchResults(true);
   };
-
-  const handleSearchSubmit = () => {
-    if (searchTerm.trim()) {
-      // Add to search history
-      const updatedHistory = [
-        searchTerm,
-        ...searchHistory.filter(item => item !== searchTerm)
-      ].slice(0, 5); // Keep only last 5 searches
-      
-      setSearchHistory(updatedHistory);
-      localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
-      
-      // Navigate to search results page or handle search
-      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-      setShowSearchResults(false);
-    }
-  };
+// Navbar.js
+const handleSearchSubmit = () => {
+  if (searchTerm.trim()) {
+    navigate(`/?q=${encodeURIComponent(searchTerm)}`);
+    const updatedHistory = [
+      searchTerm,
+      ...searchHistory.filter(item => item !== searchTerm)
+    ].slice(0, 5);
+    setSearchHistory(updatedHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+    setShowSearchResults(false);
+  }
+};
 
   const handleSearchItemClick = (item) => {
     setSearchTerm(item);
@@ -193,6 +193,14 @@ const Navbar = ({ handlePostDeal }) => {
         <span>Post a Deal</span>
       </button>
 
+      <Link to="/Wishlist" className={styles.actionButton}>
+              <BsHeartFill className={styles.icon} style={{ color: '#e60023' }} />
+              <span>Wishlist</span>
+            </Link>
+            <Link to="/Admin" className={styles.actionButton}>
+              <BsHeartFill className={styles.icon} style={{ color: '#e60023' }} />
+              <span>Admin</span>
+            </Link>
       {currentUser ? (
         <div className={styles.userSection}>
           <button 

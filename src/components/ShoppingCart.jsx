@@ -7,7 +7,7 @@ const ShoppingCart = () => {
     {
       id: 1,
       name: "Storin 15.6 Inch Reversible Laptop Sleeve Cover Case For Hp,Lenovo,Dell,Asus,Acer,Sony,Apple Macbook,Assorted",
-      price: 180.00,
+      price: 1800.00,
       quantity: 1,
       inStock: true,
       seller: "Storin Electro World",

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useNavigate as Navigate } from 'react-router-dom';
 import AuthPage from './components/AuthPage';
 import ProductPage from './components/ProductPage';
+import ShoppingCart from './components/ShoppingCart';
 import ProductDescription from './components/ProductDescription';
 import './index.css';
 import Navbar from './components/Navbar';

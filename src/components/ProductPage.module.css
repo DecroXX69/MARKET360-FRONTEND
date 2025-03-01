@@ -65,11 +65,12 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.5s ease, color 0.5s ease;
-  color: var(--text-primary);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.5s ease;
+}
+
+[data-theme="dark"] body {
+  background-color: var(--dark-primary-bg);
+  background-image: none;
 }
 
 /* Container with improved backdrop filter performance */
@@ -84,7 +85,12 @@ body {
   -webkit-backdrop-filter: blur(var(--blur-radius));
   border: 1px solid var(--border-color);
   transition: all 0.5s ease;
-  will-change: transform, opacity; /* Performance optimization */
+}
+
+[data-theme="dark"] .container {
+  background: var(--dark-primary-bg);
+  box-shadow: none;
+  border: none;
 }
 
 .contentWrapper {
@@ -104,11 +110,14 @@ body {
   -webkit-backdrop-filter: blur(var(--blur-radius));
   border: 1px solid var(--border-color);
   max-height: fit-content;
-  max-width: 300px;
-  position: sticky;
-  top: 2rem;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
-  will-change: transform, box-shadow;
+  max-width: fit-content;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .filterSidebar {
+  background: var(--dark-card-bg);
+  border: 1px solid var(--dark-border-color);
+  box-shadow: var(--dark-shadow);
 }
 
 .filterSidebar:hover {
@@ -141,55 +150,8 @@ body {
 /* Switch toggle with animation */
 .switch {
   margin-left: 40px;
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
 }
 
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(120, 120, 128, 0.16);
-  transition: .4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: var(--accent-color);
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px var(--accent-color);
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-/* Products grid with improved layout and performance */
 .productsGrid {
   flex: 4;
   display: grid;
@@ -213,11 +175,13 @@ input:checked + .slider:before {
   -webkit-backdrop-filter: blur(var(--blur-radius));
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  will-change: transform, box-shadow;
-  transform: translateZ(0); /* Triggers GPU acceleration */
+  height: fit-content;
+}
+
+[data-theme="dark"] .productCard {
+  background: var(--dark-card-bg);
+  border: 1px solid var(--dark-border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .productCard:hover {
@@ -226,7 +190,11 @@ input:checked + .slider:before {
   border-color: var(--accent-color);
 }
 
-/* Improved product image container with better aspect ratio control */
+[data-theme="dark"] .productCard:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-color: var(--dark-accent-color);
+}
+
 .productImage {
   position: relative;
   height: 250px;
@@ -336,7 +304,11 @@ input:checked + .slider:before {
   background: var(--secondary-bg);
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Make it fill available space */
+}
+
+[data-theme="dark"] .productInfo {
+  background: var(--dark-card-bg);
+  border-top: 1px solid var(--dark-border-color);
 }
 
 .productInfo h3 {
@@ -429,7 +401,11 @@ input:checked + .slider:before {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 10;
   letter-spacing: 0.5px;
-  will-change: transform, opacity;
+}
+
+[data-theme="dark"] .viewDetailsButton {
+  background: var(--dark-accent-color);
+  box-shadow: 0 4px 15px rgba(10, 132, 255, 0.3);
 }
 
 .productCard:hover .viewDetailsButton {
@@ -458,10 +434,10 @@ input:checked + .slider:before {
   text-decoration: none;
   transition: all 0.3s ease;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+}
+
+[data-theme="dark"] .dealLink {
+  border: 1px solid var(--dark-border-color);
 }
 
 .dealLink:hover {
@@ -471,12 +447,12 @@ input:checked + .slider:before {
   box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
-.dealLink svg {
-  width: 16px;
-  height: 16px;
+[data-theme="dark"] .dealLink:hover {
+  background: var(--dark-accent-color);
+  border-color: var(--dark-accent-color);
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
 }
 
-/* Improved rating buttons */
 .ratingButtons {
   display: flex;
   justify-content: space-between;
@@ -494,10 +470,11 @@ input:checked + .slider:before {
   flex: 1;
   margin: 0 0.3rem;
   font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
+}
+
+[data-theme="dark"] .likeButton,
+[data-theme="dark"] .dislikeButton {
+  border: 1px solid var(--dark-border-color);
 }
 
 .likeButton:hover,
@@ -560,31 +537,12 @@ input:checked + .slider:before {
   animation: slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   max-height: 85vh;
   overflow-y: auto;
-  will-change: transform, opacity;
 }
 
-.closeModal {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.closeModal:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-primary);
-  transform: rotate(90deg);
+[data-theme="dark"] .modal {
+  background: var(--dark-card-bg);
+  border: 1px solid var(--dark-border-color);
+  box-shadow: var(--dark-shadow);
 }
 
 @keyframes fadeIn {
@@ -626,11 +584,11 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+}
+
+[data-theme="dark"] .submitButton {
+  background: linear-gradient(135deg, #0a84ff, #5ac8fa);
+  box-shadow: 0 4px 15px rgba(10, 132, 255, 0.3);
 }
 
 .submitButton:hover {
@@ -651,11 +609,10 @@ input:checked + .slider:before {
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+}
+
+[data-theme="dark"] .cancelButton {
+  border: 1px solid var(--dark-border-color);
 }
 
 .cancelButton:hover {
@@ -664,19 +621,21 @@ input:checked + .slider:before {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Enhanced image upload section with better UX */
+[data-theme="dark"] .cancelButton:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .imageUploadSection {
   margin: 1.5rem 0;
   border: 1px dashed var(--border-color);
   padding: 1.5rem;
   border-radius: var(--card-radius);
   background: rgba(0, 0, 0, 0.02);
-  transition: all 0.3s ease;
 }
 
-.imageUploadSection:hover {
-  background: rgba(0, 122, 255, 0.05);
-  border-color: var(--accent-color);
+[data-theme="dark"] .imageUploadSection {
+  border: 1px dashed var(--dark-border-color);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .imagesPreviewContainer {
@@ -692,7 +651,10 @@ input:checked + .slider:before {
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
-  aspect-ratio: 1;
+}
+
+[data-theme="dark"] .imagePreviewItem {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .imagePreviewItem:hover {
@@ -763,9 +725,12 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
   border: 1px dashed var(--accent-color);
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+}
+
+[data-theme="dark"] .uploadLabel {
+  background: linear-gradient(135deg, rgba(10, 132, 255, 0.1), rgba(90, 200, 250, 0.1));
+  color: var(--dark-accent-color);
+  border: 1px dashed var(--dark-accent-color);
 }
 
 .uploadLabel:hover {
@@ -774,12 +739,12 @@ input:checked + .slider:before {
   box-shadow: 0 4px 15px rgba(0, 122, 255, 0.15);
 }
 
-.uploadLabel svg {
-  width: 18px;
-  height: 18px;
+[data-theme="dark"] .uploadLabel:hover {
+  background: linear-gradient(135deg, rgba(10, 132, 255, 0.2), rgba(90, 200, 250, 0.2));
+  box-shadow: 0 4px 15px rgba(10, 132, 255, 0.15);
 }
 
-/* Enhanced form elements with better accessibility */
+/* Styling for inputs and form elements */
 input, select, textarea {
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
@@ -873,8 +838,12 @@ textarea {
   background-clip: content-box;
 }
 
-/* Theme toggle button with improved animation */
-.themeToggle {
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--dark-accent-color);
+}
+
+/* Theme toggle button styling */
+button:has(svg[class*="FaLightbulb"]) {
   position: fixed;
   right: 20px;
   top: 20px;
@@ -895,20 +864,19 @@ textarea {
   border: 1px solid var(--border-color);
 }
 
-.themeToggle:hover {
+[data-theme="dark"] button:has(svg[class*="FaLightbulb"]) {
+  background: var(--dark-card-bg);
+  border: 1px solid var(--dark-border-color);
+  box-shadow: var(--dark-shadow);
+}
+
+button:has(svg[class*="FaLightbulb"]):hover {
   transform: rotate(15deg) scale(1.1);
   box-shadow: var(--shadow), var(--glow);
 }
 
-.themeToggle svg {
-  width: 24px;
-  height: 24px;
-  color: var(--text-primary);
-  transition: color 0.3s ease, transform 0.5s ease;
-}
-
-[data-theme="dark"] .themeToggle svg {
-  transform: rotate(180deg);
+[data-theme="dark"] button:has(svg[class*="FaLightbulb"]):hover {
+  box-shadow: var(--dark-shadow), var(--dark-glow);
 }
 
 /* Responsive design */

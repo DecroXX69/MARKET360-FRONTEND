@@ -256,7 +256,7 @@ const ProductDescription = ({ currentUser }) => {
                   target="_blank"
                                   rel="noopener noreferrer"
               >
-                Get Deal at
+                Get Deal at {product.store}
               </button>
             )}
             {/* Heart Button */}

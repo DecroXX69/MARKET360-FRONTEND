@@ -284,7 +284,7 @@ const handleThemeToggle = () => {
   return (
     
     <div className={styles.container}>
-<DarkModeToggle
+{/* <DarkModeToggle
   onChange={handleThemeToggle}
   checked={isDarkMode}
   size={80}
@@ -293,7 +293,7 @@ const handleThemeToggle = () => {
     margin: '10px'
 
   }}
-/>
+/> */}
 
       {showModal && (
         <div className={styles.modalOverlay}>

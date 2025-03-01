@@ -25,26 +25,37 @@
   --dark-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   --dark-pattern-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.02) 75%, transparent 75%, transparent);
   --dark-glow: 0 0 15px rgba(10, 132, 255, 0.5);
+  
+  /* New accent colors for variety */
+  --success-color: #34c759;
+  --warning-color: #ff9500;
+  --error-color: #ff3b30;
+  --info-color: #5ac8fa;
 }
 
+/* Theme switch - improved dark mode implementation */
 [data-theme="dark"] {
   --primary-bg: var(--dark-primary-bg);
   --secondary-bg: var(--dark-secondary-bg);
   --text-primary: var(--dark-text-primary);
   --text-secondary: var(--dark-text-secondary);
+  --accent-color: var(--dark-accent-color);
   --border-color: var(--dark-border-color);
   --shadow: var(--dark-shadow);
   --pattern-bg: var(--dark-pattern-bg);
   --glow: var(--dark-glow);
 }
 
+/* Font optimization with system font fallbacks */
 @font-face {
   font-family: 'SF Pro';
   src: url('../assets/SF-Pro.ttf') format('truetype');
+  font-display: swap; /* Prevents FOIT (Flash of Invisible Text) */
 }
 
+/* Base styles with better performance optimizations */
 body {
-  font-family: 'SF Pro', -apple-system, sans-serif;
+  font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   background-image: var(--pattern-bg);
   background-size: 20px 20px;
   background-color: var(--primary-bg);
@@ -53,20 +64,26 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.5s ease;
+  transition: background-color 0.5s ease, color 0.5s ease;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Container with improved backdrop filter performance */
 .container {
   max-width: 2000px;
-  margin: 2rem auto;
+
   padding: 2rem;
   background: var(--primary-bg);
-  border-radius: var(--card-radius);
+
   box-shadow: var(--shadow);
   backdrop-filter: blur(var(--blur-radius));
   -webkit-backdrop-filter: blur(var(--blur-radius));
   border: 1px solid var(--border-color);
   transition: all 0.5s ease;
+  will-change: transform, opacity; /* Performance optimization */
 }
 
 .contentWrapper {
@@ -75,6 +92,7 @@ body {
   padding: 2rem;
 }
 
+/* Enhanced filter sidebar with improved animation */
 .filterSidebar {
   flex: 1;
   background: var(--secondary-bg);
@@ -85,8 +103,11 @@ body {
   -webkit-backdrop-filter: blur(var(--blur-radius));
   border: 1px solid var(--border-color);
   max-height: fit-content;
-  max-width: fit-content;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  max-width: 300px;
+  position: sticky;
+  top: 2rem;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  will-change: transform, box-shadow;
 }
 
 .filterSidebar:hover {
@@ -94,28 +115,108 @@ body {
   box-shadow: var(--shadow), var(--glow);
 }
 
+.filterSidebar h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+/* Filter control groups */
+.filterGroup {
+  margin-bottom: 1.5rem;
+}
+
+.filterGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Switch toggle with animation */
 .switch {
   margin-left: 40px;
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
 }
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(120, 120, 128, 0.16);
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--accent-color);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--accent-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* Products grid with improved layout and performance */
 .productsGrid {
   flex: 4;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
+  /* Using the CSS Grid auto-placement algorithm efficiently */
+  grid-auto-flow: dense;
 }
 
+/* Product card with optimized transitions and animations */
 .productCard {
   position: relative;
   background: var(--secondary-bg);
   border-radius: var(--card-radius);
   overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              box-shadow 0.4s ease,
+              border-color 0.3s ease;
   cursor: pointer;
   backdrop-filter: blur(var(--blur-radius));
   -webkit-backdrop-filter: blur(var(--blur-radius));
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  height: fit-content;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  will-change: transform, box-shadow;
+  transform: translateZ(0); /* Triggers GPU acceleration */
 }
 
 .productCard:hover {
@@ -124,6 +225,7 @@ body {
   border-color: var(--accent-color);
 }
 
+/* Improved product image container with better aspect ratio control */
 .productImage {
   position: relative;
   height: 250px;
@@ -136,6 +238,7 @@ body {
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease, filter 0.5s ease;
+  will-change: transform, filter;
 }
 
 .productCard:hover .productImage img {
@@ -143,6 +246,7 @@ body {
   filter: blur(3px) brightness(0.8);
 }
 
+/* Enhanced button styles and interactions */
 .heartButton,
 .shareButton {
   position: absolute;
@@ -159,6 +263,7 @@ body {
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   opacity: 0.9;
   cursor: pointer;
+  transform: translateZ(0); /* Triggers GPU acceleration */
 }
 
 .heartButton {
@@ -197,7 +302,7 @@ body {
 }
 
 .heartButton.active svg {
-  fill: #ff3b30;
+  fill: var(--error-color);
   animation: heartBeat 0.6s ease-in-out;
 }
 
@@ -209,13 +314,14 @@ body {
   70% { transform: scale(1); }
 }
 
+/* Product info with improved layout */
 .productInfo {
   padding: 1.5rem;
   border-top: 1px solid var(--border-color);
   background: var(--secondary-bg);
-  height: calc(100% - 250px);
   display: flex;
   flex-direction: column;
+  flex-grow: 1; /* Make it fill available space */
 }
 
 .productInfo h3 {
@@ -231,11 +337,13 @@ body {
   -webkit-box-orient: vertical;
 }
 
+/* Enhanced pricing display with better visual hierarchy */
 .priceInfo {
   display: flex;
   align-items: center;
   gap: 0.8rem;
   margin: 0.5rem 0 1rem;
+  flex-wrap: wrap;
 }
 
 .salePrice {
@@ -251,7 +359,7 @@ body {
 }
 
 .discount {
-  background: linear-gradient(135deg, #ff3b30, #ff9500);
+  background: linear-gradient(135deg, var(--error-color), var(--warning-color));
   color: white;
   padding: 0.2rem 0.6rem;
   border-radius: 20px;
@@ -264,8 +372,18 @@ body {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+.store svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+}
+
+/* Action buttons with improved interaction design */
 .actions {
   display: flex;
   flex-direction: column;
@@ -292,6 +410,7 @@ body {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 10;
   letter-spacing: 0.5px;
+  will-change: transform, opacity;
 }
 
 .productCard:hover .viewDetailsButton {
@@ -300,7 +419,7 @@ body {
 }
 
 .viewDetailsButton:hover {
-  background: linear-gradient(135deg, #007aff, #5ac8fa);
+  background: linear-gradient(135deg, var(--accent-color), var(--info-color));
   box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
   transform: translate(-50%, -50%) scale(1.05);
 }
@@ -315,6 +434,10 @@ body {
   text-decoration: none;
   transition: all 0.3s ease;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .dealLink:hover {
@@ -324,6 +447,12 @@ body {
   box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
+.dealLink svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Improved rating buttons */
 .ratingButtons {
   display: flex;
   justify-content: space-between;
@@ -341,6 +470,10 @@ body {
   flex: 1;
   margin: 0 0.3rem;
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
 }
 
 .likeButton:hover,
@@ -350,16 +483,16 @@ body {
 }
 
 .likeButton.active {
-  background: linear-gradient(135deg, #34c759, #30b0c7);
-  border-color: #34c759;
+  background: linear-gradient(135deg, var(--success-color), #30b0c7);
+  border-color: var(--success-color);
   color: white;
   box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
   animation: pulse 0.5s ease-in-out;
 }
 
 .dislikeButton.active {
-  background: linear-gradient(135deg, #ff3b30, #ff9500);
-  border-color: #ff3b30;
+  background: linear-gradient(135deg, var(--error-color), var(--warning-color));
+  border-color: var(--error-color);
   color: white;
   box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
   animation: pulse 0.5s ease-in-out;
@@ -371,6 +504,7 @@ body {
   100% { transform: scale(1); }
 }
 
+/* Enhanced modal with better accessibility and transitions */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -385,6 +519,7 @@ body {
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease-out;
+  will-change: opacity;
 }
 
 .modal {
@@ -401,6 +536,31 @@ body {
   animation: slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   max-height: 85vh;
   overflow-y: auto;
+  will-change: transform, opacity;
+}
+
+.closeModal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.closeModal:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  transform: rotate(90deg);
 }
 
 @keyframes fadeIn {
@@ -425,10 +585,11 @@ body {
   display: flex;
   justify-content: space-between;
   margin-top: 2rem;
+  gap: 1rem;
 }
 
 .submitButton {
-  background: linear-gradient(135deg, #007aff, #5ac8fa);
+  background: linear-gradient(135deg, var(--accent-color), var(--info-color));
   color: white;
   padding: 0.7rem 1.5rem;
   border: none;
@@ -437,6 +598,11 @@ body {
   transition: all 0.3s ease;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .submitButton:hover {
@@ -457,6 +623,11 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .cancelButton:hover {
@@ -465,12 +636,19 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Enhanced image upload section with better UX */
 .imageUploadSection {
   margin: 1.5rem 0;
   border: 1px dashed var(--border-color);
   padding: 1.5rem;
   border-radius: var(--card-radius);
   background: rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+
+.imageUploadSection:hover {
+  background: rgba(0, 122, 255, 0.05);
+  border-color: var(--accent-color);
 }
 
 .imagesPreviewContainer {
@@ -486,6 +664,7 @@ body {
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  aspect-ratio: 1;
 }
 
 .imagePreviewItem:hover {
@@ -493,7 +672,7 @@ body {
 }
 
 .previewContainer {
-  height: 100px;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -501,6 +680,11 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.imagePreviewItem:hover .imagePreview {
+  transform: scale(1.1);
 }
 
 .removeImage {
@@ -519,7 +703,7 @@ body {
   font-size: 0.8rem;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
 }
 
 .imagePreviewItem:hover .removeImage {
@@ -527,7 +711,7 @@ body {
 }
 
 .removeImage:hover {
-  background: rgba(255, 59, 48, 0.8);
+  background: var(--error-color);
   transform: scale(1.1);
 }
 
@@ -551,6 +735,9 @@ body {
   transition: all 0.3s ease;
   border: 1px dashed var(--accent-color);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .uploadLabel:hover {
@@ -559,7 +746,12 @@ body {
   box-shadow: 0 4px 15px rgba(0, 122, 255, 0.15);
 }
 
-/* Styling for inputs and form elements */
+.uploadLabel svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Enhanced form elements with better accessibility */
 input, select, textarea {
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
@@ -587,7 +779,26 @@ textarea {
   resize: vertical;
 }
 
-/* Custom scrollbar styling */
+/* Form field groups */
+.formGroup {
+  margin-bottom: 1.2rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.formGroup .hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+
+/* Enhanced scrollbar styling for better UX */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -611,8 +822,8 @@ textarea {
   background-clip: content-box;
 }
 
-/* Theme toggle button styling */
-button:has(svg[class*="FaLightbulb"]) {
+/* Theme toggle button with improved animation */
+.themeToggle {
   position: fixed;
   right: 20px;
   top: 20px;
@@ -633,9 +844,20 @@ button:has(svg[class*="FaLightbulb"]) {
   border: 1px solid var(--border-color);
 }
 
-button:has(svg[class*="FaLightbulb"]):hover {
+.themeToggle:hover {
   transform: rotate(15deg) scale(1.1);
   box-shadow: var(--shadow), var(--glow);
+}
+
+.themeToggle svg {
+  width: 24px;
+  height: 24px;
+  color: var(--text-primary);
+  transition: color 0.3s ease, transform 0.5s ease;
+}
+
+[data-theme="dark"] .themeToggle svg {
+  transform: rotate(180deg);
 }
 
 /* Responsive design */

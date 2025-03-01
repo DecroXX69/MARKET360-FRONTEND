@@ -1,18 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './footer.css';
+import styles from './footer.module.css';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  
+
   return (
-    <footer className="footer">
-      <div className="footer-container">
-        <div className="footer-grid">
+    <footer className={styles.footer}>
+      <div className={styles.footerContainer}>
+        <div className={styles.footerGrid}>
           {/* Follow Us Section */}
-          <div className="footer-section">
+          <div className={styles.footerSection}>
             <h3>Follow Us</h3>
-            <div className="footer-links">
+            <div className={styles.footerLinks}>
               <Link to="/social/twitter">Twitter</Link>
               <Link to="/social/facebook">Facebook</Link>
               <Link to="/social/instagram">Instagram</Link>
@@ -21,9 +21,9 @@ const Footer = () => {
           </div>
 
           {/* About Section */}
-          <div className="footer-section">
+          <div className={styles.footerSection}>
             <h3>About</h3>
-            <div className="footer-links">
+            <div className={styles.footerLinks}>
               <Link to="/about">About Us</Link>
               <Link to="/help">Help Center</Link>
               <Link to="/careers">Careers</Link>
@@ -32,9 +32,9 @@ const Footer = () => {
           </div>
 
           {/* More Section */}
-          <div className="footer-section">
+          <div className={styles.footerSection}>
             <h3>More</h3>
-            <div className="footer-links">
+            <div className={styles.footerLinks}>
               <Link to="/deals">Deal Alerts</Link>
               <Link to="/live">Live Deals</Link>
               <Link to="/rewards">Rewards Program</Link>
@@ -42,9 +42,9 @@ const Footer = () => {
           </div>
 
           {/* Legal Section */}
-          <div className="footer-section">
+          <div className={styles.footerSection}>
             <h3>Legal</h3>
-            <div className="footer-links">
+            <div className={styles.footerLinks}>
               <Link to="/privacy">Privacy Policy</Link>
               <Link to="/terms">Terms and Policies</Link>
               <Link to="/accessibility">Accessibility</Link>
@@ -53,16 +53,16 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="footer-bottom">
-          <div className="footer-bottom-content">
-            <div className="copyright">
+        <div className={styles.footerBottom}>
+          <div className={styles.footerBottomContent}>
+            <div className={styles.copyright}>
               © {currentYear} Market360. All Rights Reserved.
             </div>
-            <div className="footer-bottom-links">
+            <div className={styles.footerBottomLinks}>
               <Link to="/redesign">Redesign</Link>
-              <span className="separator">•</span>
+              <span className={styles.separator}>•</span>
               <Link to="/mobile">Mobile</Link>
-              <span className="separator">•</span>
+              <span className={styles.separator}>•</span>
               <Link to="/classic">Classic</Link>
             </div>
           </div>

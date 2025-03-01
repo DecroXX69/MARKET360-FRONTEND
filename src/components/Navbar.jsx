@@ -12,7 +12,8 @@ import market from '../assets/market360.jpeg';
 import Wishlist from './Wishlist';
 import { BsHeartFill } from 'react-icons/bs';
 import { useLocation } from 'react-router-dom';
-
+import DarkModeToggle from 'react-dark-mode-toggle';
+import { RiAdminFill } from "react-icons/ri";
 // Remove currentUser and handleLogout from props since we'll get them from useAuth
 const Navbar = ({ handlePostDeal }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -79,6 +80,17 @@ const handleSearchSubmit = () => {
     setShowSearchResults(false);
   }
 };
+
+const handleThemeToggle = () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  setIsDarkMode(newTheme === 'dark');
+};
+const [isDarkMode, setIsDarkMode] = useState(
+  document.documentElement.getAttribute('data-theme') === 'dark'
+);
+
 
   const handleSearchItemClick = (item) => {
     setSearchTerm(item);
@@ -179,10 +191,16 @@ const handleSearchSubmit = () => {
           </div>
 
           <div className={styles.actionButtons}>
-      <Link to="/alerts" className={styles.actionButton}>
-        <BsBellFill className={styles.icon} style={{color: '#ff1a75'}} />
-        <span>Deal Alerts</span>
-      </Link>
+          <DarkModeToggle
+  onChange={handleThemeToggle}
+  checked={isDarkMode}
+  size={80}
+  className={styles.switch}  // Correct way to use styles
+  style={{ 
+    margin: '10px'
+
+  }}
+/>
       
       <button 
         onClick={handlePostDeal}
@@ -198,7 +216,7 @@ const handleSearchSubmit = () => {
               <span>Wishlist</span>
             </Link>
             <Link to="/Admin" className={styles.actionButton}>
-              <BsHeartFill className={styles.icon} style={{ color: '#e60023' }} />
+              <RiAdminFill className={styles.icon} style={{ color: '#21db53' }} />
               <span>Admin</span>
             </Link>
       {currentUser ? (
@@ -228,7 +246,7 @@ const handleSearchSubmit = () => {
         </div>
       </nav>
 
-      <nav className={styles.secondaryNav}>
+      {/* <nav className={styles.secondaryNav}>
         <div className={styles.container}>
           <div className={styles.secondaryNavLinks}>
             
@@ -249,7 +267,7 @@ const handleSearchSubmit = () => {
             <Link to="/grocery-deals" className={styles.secondaryNavItem}>Grocery Deals</Link>
           </div>
         </div>
-      </nav>
+      </nav> */}
     </div>
   );
 };

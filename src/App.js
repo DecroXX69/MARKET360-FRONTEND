@@ -29,6 +29,8 @@ import Admin from "./AdminScenes/admin/index";
 import Performance from "./AdminScenes/performance/index";
 import Wishlist from './components/Wishlist';
 import AdminPage from './components/AdminPage';
+import DarkModeToggle from 'react-dark-mode-toggle';
+import styles from './components/ProductPage.module.css';
 const App = () => {
   const [showProductModal, setShowProductModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -36,6 +38,16 @@ const App = () => {
 
   const mode = useSelector((state) => state.global.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.documentElement.getAttribute('data-theme') === 'dark'
+  );
+  const handleThemeToggle = () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  setIsDarkMode(newTheme === 'dark');
+};
+
 
   useEffect(() => {
     const checkAuth = () => {
@@ -76,6 +88,11 @@ const App = () => {
         isAuthenticated={isAuthenticated}
         handleLogout={handleLogout}
         currentUser={currentUser}
+        onChange={handleThemeToggle}
+        checked={isDarkMode}
+        size={80}
+        className={styles.switch}
+        style={{ margin: '10px' }}
       />
       <div className="app-container">
         <Routes>

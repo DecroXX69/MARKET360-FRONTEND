@@ -2,14 +2,14 @@ import axios from 'axios';
 
 // Initialize Axios instance
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'https://localhost:5000/api',
+    baseURL:  'http://localhost:5000/api',
     timeout: 10000,
 });
 
 // Flag to prevent infinite logout loops
 let isLoggingOut = false;
 
-// Request interceptor for authorization header
+// Request interceptor for authorization heade
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -147,6 +147,31 @@ export const getProducts = async (filters) => {
         console.error('Error incrementing view:', error.response || error);
         throw error;
     }
+};
+
+export const updateUserProfile = async (userId, profileData) => {
+  try {
+    const response = await api.put(`/users/${userId}`, profileData);
+    const data = response.data;
+    
+    // Update the stored user data in localStorage
+    const currentUserData = JSON.parse(localStorage.getItem('user'));
+    if (currentUserData) {
+      const updatedUserData = {
+        ...currentUserData,
+        username: profileData.username,
+        email: profileData.email,
+        gender: profileData.gender,
+        country: profileData.country
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUserData));
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Update profile error:', error);
+    throw error;
+  }
 };
 
 export const getProductById = async (id) => {

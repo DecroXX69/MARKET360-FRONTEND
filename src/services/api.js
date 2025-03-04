@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Initialize Axios instance
 const api = axios.create({
-    baseURL:  'http://localhost:5000/api',
+    baseURL:  'https://market360-backend-t1er.onrender.com/api',
     timeout: 10000,
 });
 

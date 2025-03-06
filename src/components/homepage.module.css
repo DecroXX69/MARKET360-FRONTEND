@@ -1,0 +1,132 @@
+.container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(255, 237, 188, 0.4) 0%, rgba(255, 196, 250, 0.4) 40%, rgba(201, 224, 255, 0.4) 100%);
+    backdrop-filter: blur(10px);
+  }
+  
+  .content {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+  }
+  
+  .tagline {
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: rgba(255, 102, 140, 0.8);
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  
+  .titleContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
+  }
+  
+  .title {
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  
+  .number {
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-left: 10px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  
+  .blue {
+    color: rgba(94, 174, 255, 0.9);
+    text-shadow: 0 0 15px rgba(94, 174, 255, 0.4);
+  }
+  
+  .purple {
+    color: rgba(168, 104, 237, 0.9);
+    text-shadow: 0 0 15px rgba(168, 104, 237, 0.4);
+  }
+  
+  .pink {
+    color: rgba(255, 107, 154, 0.9);
+    text-shadow: 0 0 15px rgba(255, 107, 154, 0.4);
+  }
+  
+  .shopButton {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 32px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s, background-color 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .arrow {
+    margin-left: 10px;
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .shopButton:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .shopButton:hover .arrow {
+    transform: translateX(5px);
+  }
+  
+  /* Animation classes */
+  .visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Media queries */
+  @media (max-width: 768px) {
+    .title, .number {
+      font-size: 4rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .title, .number {
+      font-size: 3rem;
+    }
+    
+    .tagline {
+      font-size: 0.8rem;
+    }
+  }

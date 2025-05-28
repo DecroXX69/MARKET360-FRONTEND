@@ -444,8 +444,8 @@ const handleThemeToggle = () => {
               <div className={styles.productInfo}>
                 <h3>{product.title}</h3>
                 <div className={styles.priceInfo}>
-                  <span className={styles.salePrice}>${product.salePrice}</span>
-                  <span className={styles.listPrice}>${product.listPrice}</span>
+                  <span className={styles.salePrice}>Rs.{product.salePrice}</span>
+                  <span className={styles.listPrice}>Rs.{product.listPrice}</span>
                   <span className={styles.discount}>
                     {Math.round(100 - (product.salePrice / product.listPrice) * 100)}% OFF
                   </span>

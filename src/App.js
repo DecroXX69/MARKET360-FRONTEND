@@ -13,7 +13,8 @@ import Footer from './components/Footer';
 import UserProfile from './components/ProfilePage';
 import Wishlist from './components/Wishlist';
 import AdminPage from './components/AdminPage';
-
+import TermsAndConditions from './components/TermsAndConditions';
+import RefundPolicy from './components/RefundPolicy';
 import './index.css';
 import styles from './components/ProductPage.module.css';
 
@@ -96,6 +97,9 @@ const App = () => {
                 <Route path="/wishlist" element={
                   <Wishlist currentUser={currentUser} />
                 } />
+                <Route path="/terms" element={<TermsAndConditions />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/privacy" element={<RefundPolicy />} />
               </Routes>
             </Layout>
           } />

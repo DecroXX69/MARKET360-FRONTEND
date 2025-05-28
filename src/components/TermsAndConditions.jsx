@@ -1,4 +1,4 @@
-// src/components/Policies/TermsAndConditions.jsx
+// src/components/Policies/TermsAndConditions.j
 import React from 'react';
 import styles from './Policies.module.css';
 
